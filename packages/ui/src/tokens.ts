@@ -72,7 +72,29 @@ export const tokens = {
     border: 'rgba(255, 255, 255, 0.08)',
     borderSubtle: 'rgba(255, 255, 255, 0.04)',
     borderHover: 'rgba(255, 255, 255, 0.16)',
+    borderHigh: 'rgba(255, 255, 255, 0.22)',
     borderFocus: 'rgba(38, 182, 90, 0.6)',
+
+    // Surface Elevation Tokens
+    surface: {
+      base: '#08090b',
+      elevated: '#111215',
+      overlay: '#16171c',
+      card: 'rgba(255, 255, 255, 0.035)',
+      cardHover: 'rgba(255, 255, 255, 0.065)',
+      active: 'rgba(255, 255, 255, 0.09)',
+    },
+
+    // Contrast Utility Tokens
+    contrast: {
+      high: 'rgba(255, 255, 255, 0.95)',
+      medium: 'rgba(255, 255, 255, 0.70)',
+      subtle: 'rgba(255, 255, 255, 0.45)',
+      faint: 'rgba(255, 255, 255, 0.25)',
+      borderHigh: 'rgba(255, 255, 255, 0.20)',
+      borderMedium: 'rgba(255, 255, 255, 0.12)',
+      borderSubtle: 'rgba(255, 255, 255, 0.07)',
+    },
   },
 
   radii: {

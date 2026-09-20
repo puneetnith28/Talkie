@@ -21,4 +21,11 @@ describe('Design Tokens Typography System', () => {
     expect(tokens.typography.lineHeights.tight).toBe('1.15');
     expect(tokens.typography.letterSpacings.tight).toBe('-0.015em');
   });
+
+  it('defines structured surface elevation and contrast tokens', () => {
+    expect(tokens.colors.surface.base).toBe('#08090b');
+    expect(tokens.colors.surface.elevated).toBe('#111215');
+    expect(tokens.colors.borderHigh).toBe('rgba(255, 255, 255, 0.22)');
+    expect(tokens.colors.contrast.borderMedium).toBe('rgba(255, 255, 255, 0.12)');
+  });
 });
