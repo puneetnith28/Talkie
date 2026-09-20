@@ -7,13 +7,14 @@ import { Sidebar } from './sidebar';
 import { DemoModeAlert } from './demo-mode-alert';
 import { Button } from '@talkie/ui';
 import { Terminal, Menu, LogOut } from 'lucide-react';
-import { UserButton, useClerk } from '@clerk/nextjs';
+import { UserButton, useClerk, useUser } from '@clerk/nextjs';
 
 interface DashboardShellProps {
   children: React.ReactNode;
 }
 
 interface WorkspaceSession {
+  userName: string;
   workspaceName: string;
   balanceDollars: string;
   userInitials: string;
@@ -24,14 +25,16 @@ interface WorkspaceSession {
 export function DashboardShell({ children }: DashboardShellProps) {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [session, setSession] = useState<WorkspaceSession>({
+    userName: 'Puneet Yadav',
     workspaceName: 'Talkie AI Labs',
     balanceDollars: '50.00',
-    userInitials: 'AR',
-    userEmail: 'alex@talkie.ai',
+    userInitials: 'PY',
+    userEmail: 'puneet@talkie.ai',
     isDemoMode: true,
   });
   const pathname = usePathname();
   const router = useRouter();
+  const { user: clerkUser } = useUser();
 
   // Fetch active workspace and session context
   useEffect(() => {
@@ -49,7 +52,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         if (isMounted && res.success && res.data) {
           const ws = res.data.workspace;
           const user = res.data.user;
-          const name = user?.name || user?.email || 'User';
+          const name = user?.name || user?.email?.split('@')[0] || 'User';
           const initials = name
             .split(' ')
             .map((p: string) => p[0])
@@ -58,10 +61,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
             .slice(0, 2) || 'TK';
 
           setSession({
+            userName: name,
             workspaceName: ws?.name || 'Talkie AI Labs',
             balanceDollars: ws?.balanceDollars || '50.00',
             userInitials: initials,
-            userEmail: user?.email || 'alex@talkie.ai',
+            userEmail: user?.email || '',
             isDemoMode: res.data.isDemoMode ?? true,
           });
         } else if (!res.success && res.error === 'Unauthorized') {
@@ -179,41 +183,49 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </Button>
             </Link>
 
-            {!session.isDemoMode ? (
-              <div className="flex items-center">
-                <UserButton
-                  appearance={{
-                    elements: {
-                      userButtonAvatarBox:
-                        'w-8 h-8 rounded-full border border-white/[0.1] hover:border-emerald-500/40 transition',
-                      userButtonPopoverCard:
-                        'bg-[#0a0c10] border border-white/[0.1] shadow-2xl text-white',
-                      userButtonPopoverActionButton:
-                        'text-neutral-300 hover:text-white hover:bg-white/[0.05]',
-                      userButtonPopoverActionButtonText:
-                        'text-xs text-neutral-300 font-medium',
-                    },
-                  }}
-                />
-              </div>
-            ) : (
-              <Link href="/dashboard/settings">
-                <div
-                  title={`${session.userEmail} (Demo Mode)`}
-                  className="w-8 h-8 rounded-full bg-neutral-800 border border-white/[0.1] flex items-center justify-center text-xs font-medium text-neutral-200 select-none cursor-pointer hover:border-emerald-500/40 transition"
-                >
+            {/* User Profile Badge & Name */}
+            <div className="flex items-center gap-2.5 px-2.5 py-1 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] transition">
+              {!session.isDemoMode ? (
+                <div className="flex items-center">
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        userButtonAvatarBox:
+                          'w-7 h-7 rounded-full border border-white/[0.1] hover:border-emerald-500/40 transition',
+                        userButtonPopoverCard:
+                          'bg-[#0a0c10] border border-white/[0.1] shadow-2xl text-white',
+                        userButtonPopoverActionButton:
+                          'text-neutral-300 hover:text-white hover:bg-white/[0.05]',
+                        userButtonPopoverActionButtonText:
+                          'text-xs text-neutral-300 font-medium',
+                      },
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500/30 to-emerald-400/10 border border-emerald-500/30 flex items-center justify-center text-[11px] font-bold text-emerald-300">
                   {session.userInitials}
                 </div>
-              </Link>
-            )}
+              )}
+
+              <div className="hidden sm:flex flex-col text-left pr-1">
+                <span className="text-xs font-semibold text-white leading-tight truncate max-w-[130px]">
+                  {clerkUser?.fullName || clerkUser?.firstName || session.userName}
+                </span>
+                <span className="text-[10px] text-neutral-400 font-mono leading-tight truncate max-w-[130px]">
+                  {clerkUser?.primaryEmailAddress?.emailAddress || session.userEmail || 'Active'}
+                </span>
+              </div>
+            </div>
 
             <button
               type="button"
               onClick={handleSignOut}
               title="Sign Out"
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-red-400 hover:bg-red-500/10 border border-white/[0.06] hover:border-red-500/30 transition cursor-pointer"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Sign Out</span>
             </button>
           </div>
         </header>
