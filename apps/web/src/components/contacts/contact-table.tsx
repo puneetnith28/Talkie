@@ -26,6 +26,8 @@ interface ContactRecord {
   phoneNumber: string;
   name?: string | null;
   email?: string | null;
+  whatsappId?: string | null;
+  telegramUsername?: string | null;
   company?: string | null;
   notes?: string | null;
   createdAt: string;
@@ -248,7 +250,19 @@ export function ContactTable({ initialContacts = [] }: ContactTableProps) {
                       </td>
 
                       <td className="py-3.5 px-4 font-mono text-neutral-300">
-                        {contact.phoneNumber}
+                        <div>{contact.phoneNumber}</div>
+                        <div className="flex items-center gap-1.5 mt-1 font-sans">
+                          {contact.whatsappId && (
+                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded">
+                              WA: {contact.whatsappId}
+                            </span>
+                          )}
+                          {contact.telegramUsername && (
+                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-400 bg-sky-500/10 border border-sky-500/20 px-1.5 py-0.2 rounded">
+                              TG: @{contact.telegramUsername}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-4 text-neutral-300">

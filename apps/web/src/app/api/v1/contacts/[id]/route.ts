@@ -5,7 +5,12 @@ import { z } from 'zod';
 
 const updateContactSchema = z.object({
   name: z.string().optional(),
+  phoneNumber: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
+  whatsappId: z.string().optional(),
+  telegramId: z.string().optional(),
+  telegramUsername: z.string().optional(),
+  avatarUrl: z.string().optional(),
   company: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -56,7 +61,12 @@ export async function PATCH(
 
     const updated = await ContactService.update(workspaceId, id, {
       name: parsed.data.name,
+      phoneNumber: parsed.data.phoneNumber,
       email: parsed.data.email || undefined,
+      whatsappId: parsed.data.whatsappId || undefined,
+      telegramId: parsed.data.telegramId || undefined,
+      telegramUsername: parsed.data.telegramUsername ? parsed.data.telegramUsername.replace(/^@/, '') : undefined,
+      avatarUrl: parsed.data.avatarUrl || undefined,
       company: parsed.data.company,
       notes: parsed.data.notes,
     });

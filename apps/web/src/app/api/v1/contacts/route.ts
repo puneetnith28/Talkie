@@ -7,6 +7,10 @@ const contactSchema = z.object({
   phoneNumber: z.string().min(1, 'Phone number is required'),
   name: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
+  whatsappId: z.string().optional(),
+  telegramId: z.string().optional(),
+  telegramUsername: z.string().optional(),
+  avatarUrl: z.string().optional(),
   company: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -17,11 +21,13 @@ export async function GET(req: NextRequest) {
     const workspaceId = session.workspaceId;
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || undefined;
+    const channel = searchParams.get('channel') || undefined;
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
 
     const contacts = await ContactService.list(workspaceId, {
       query: search,
+      channel,
       limit,
       offset,
     });
@@ -63,6 +69,10 @@ export async function POST(req: NextRequest) {
       phoneNumber: parsed.data.phoneNumber,
       name: parsed.data.name,
       email: parsed.data.email || undefined,
+      whatsappId: parsed.data.whatsappId || undefined,
+      telegramId: parsed.data.telegramId || undefined,
+      telegramUsername: parsed.data.telegramUsername ? parsed.data.telegramUsername.replace(/^@/, '') : undefined,
+      avatarUrl: parsed.data.avatarUrl || undefined,
       company: parsed.data.company,
       notes: parsed.data.notes,
     });
