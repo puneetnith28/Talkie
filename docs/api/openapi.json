@@ -1,0 +1,107 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Talkie API v1",
+    "version": "1.0.0",
+    "description": "Carrier-grade Production AI Phone, Voice, and Omnichannel Messaging Platform API"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Local & Self-Hosted Server"
+    },
+    {
+      "url": "https://api.talkie.ai/v1",
+      "description": "Production Cloud"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key (tk_live_...)"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/agents": {
+      "get": {
+        "summary": "List AI Voice & Messaging Agents",
+        "responses": {
+          "200": { "description": "List of active agents" }
+        }
+      },
+      "post": {
+        "summary": "Create an AI Agent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "systemPrompt": { "type": "string" },
+                  "voice": { "type": "string" },
+                  "language": { "type": "string" },
+                  "voiceSpeed": { "type": "number" },
+                  "interruptionSensitivity": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Agent created successfully" }
+        }
+      }
+    },
+    "/numbers": {
+      "get": {
+        "summary": "List Provisioned Phone Numbers",
+        "responses": { "200": { "description": "List of phone numbers" } }
+      },
+      "post": {
+        "summary": "Provision a Phone Number",
+        "responses": { "200": { "description": "Number provisioned" } }
+      }
+    },
+    "/messages": {
+      "get": {
+        "summary": "List Messaging Threads",
+        "responses": { "200": { "description": "List of conversations" } }
+      },
+      "post": {
+        "summary": "Send Outbound SMS / MMS",
+        "responses": { "200": { "description": "Message dispatched" } }
+      }
+    },
+    "/calls": {
+      "get": {
+        "summary": "List Voice Calls & Transcripts",
+        "responses": { "200": { "description": "List of calls" } }
+      },
+      "post": {
+        "summary": "Initiate Outbound AI Call",
+        "responses": { "200": { "description": "Call initiated" } }
+      }
+    },
+    "/webhooks": {
+      "get": {
+        "summary": "List Webhooks",
+        "responses": { "200": { "description": "List of webhooks" } }
+      },
+      "post": {
+        "summary": "Create Webhook Endpoint",
+        "responses": { "200": { "description": "Webhook created" } }
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ const aliases = {
   '@talkie/types': path.resolve(__dirname, 'packages/types/src/index.ts'),
   '@talkie/telephony': path.resolve(__dirname, 'packages/telephony/src/index.ts'),
   '@talkie/voice': path.resolve(__dirname, 'packages/voice/src/index.ts'),
+  '@talkie/webhook-engine': path.resolve(__dirname, 'packages/webhook-engine/src/index.ts'),
   '@talkie/config': path.resolve(__dirname, 'packages/config/src/index.ts'),
   '@talkie/ui': path.resolve(__dirname, 'packages/ui/src/index.ts'),
 };

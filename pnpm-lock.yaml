@@ -56,6 +56,9 @@ importers:
       '@talkie/voice':
         specifier: workspace:*
         version: link:../../packages/voice
+      '@talkie/webhook-engine':
+        specifier: workspace:*
+        version: link:../../packages/webhook-engine
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -199,6 +202,19 @@ importers:
         version: 5.9.3
 
   packages/voice:
+    dependencies:
+      '@talkie/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.7(@types/node@22.20.3)(jiti@2.7.0)(tsx@4.23.13)
+
+  packages/webhook-engine:
     dependencies:
       '@talkie/types':
         specifier: workspace:*
