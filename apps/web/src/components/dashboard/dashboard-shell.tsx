@@ -5,15 +5,63 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { Button } from '@talkie/ui';
-import { Terminal, Menu } from 'lucide-react';
+import { Terminal, Menu, ShieldAlert } from 'lucide-react';
 
 interface DashboardShellProps {
   children: React.ReactNode;
 }
 
+interface WorkspaceSession {
+  workspaceName: string;
+  balanceDollars: string;
+  userInitials: string;
+  userEmail: string;
+  isDemoMode: boolean;
+}
+
 export function DashboardShell({ children }: DashboardShellProps) {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [session, setSession] = useState<WorkspaceSession>({
+    workspaceName: 'Talkie AI Labs',
+    balanceDollars: '50.00',
+    userInitials: 'AR',
+    userEmail: 'alex@talkie.ai',
+    isDemoMode: true,
+  });
   const pathname = usePathname();
+
+  // Fetch active workspace and session context
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/v1/auth/me')
+      .then((res) => res.json())
+      .then((res) => {
+        if (isMounted && res.success && res.data) {
+          const ws = res.data.workspace;
+          const user = res.data.user;
+          const name = user?.name || user?.email || 'User';
+          const initials = name
+            .split(' ')
+            .map((p: string) => p[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2) || 'TK';
+
+          setSession({
+            workspaceName: ws?.name || 'Talkie AI Labs',
+            balanceDollars: ws?.balanceDollars || '50.00',
+            userInitials: initials,
+            userEmail: user?.email || 'alex@talkie.ai',
+            isDemoMode: res.data.isDemoMode ?? true,
+          });
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Auto-close mobile drawer whenever route changes
   useEffect(() => {
@@ -84,14 +132,18 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
             <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs font-mono text-neutral-300">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="truncate max-w-[140px] sm:max-w-none">Workspace: Talkie AI Labs</span>
+              <span className="truncate max-w-[140px] sm:max-w-none">
+                Workspace: {session.workspaceName}
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 font-mono">
-              <span>Credits: $50.00</span>
-            </div>
+            <Link href="/dashboard/usage">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 font-mono hover:bg-emerald-500/15 transition cursor-pointer">
+                <span>Credits: ${session.balanceDollars}</span>
+              </div>
+            </Link>
 
             <Link href="/docs">
               <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 text-xs">
@@ -100,12 +152,14 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </Button>
             </Link>
 
-            <div
-              title="Demo User (AR)"
-              className="w-8 h-8 rounded-full bg-neutral-800 border border-white/[0.1] flex items-center justify-center text-xs font-medium text-neutral-200 select-none cursor-pointer"
-            >
-              AR
-            </div>
+            <Link href="/dashboard/settings">
+              <div
+                title={`${session.userEmail} (${session.isDemoMode ? 'Demo Mode' : 'Clerk Authenticated'})`}
+                className="w-8 h-8 rounded-full bg-neutral-800 border border-white/[0.1] flex items-center justify-center text-xs font-medium text-neutral-200 select-none cursor-pointer hover:border-emerald-500/40 transition"
+              >
+                {session.userInitials}
+              </div>
+            </Link>
           </div>
         </header>
 
