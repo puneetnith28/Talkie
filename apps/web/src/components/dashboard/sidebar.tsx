@@ -27,16 +27,23 @@ export interface NavItem {
   badge?: string;
 }
 
-export const navItems: NavItem[] = [
+export const coreNavItems: NavItem[] = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Agents', href: '/dashboard/agents', icon: Bot },
   { name: 'Phone Numbers', href: '/dashboard/numbers', icon: Phone },
   { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare },
   { name: 'Calls & Transcripts', href: '/dashboard/calls', icon: PhoneCall },
   { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
+];
+
+export const developerNavItems: NavItem[] = [
   { name: 'Webhooks', href: '/dashboard/webhooks', icon: Webhook },
-  { name: 'Usage & Billing', href: '/dashboard/usage', icon: CreditCard },
   { name: 'API Keys', href: '/dashboard/settings/api-keys', icon: Key },
+  { name: 'API & SDK Docs', href: '/docs', icon: BookOpen },
+];
+
+export const accountNavItems: NavItem[] = [
+  { name: 'Usage & Billing', href: '/dashboard/usage', icon: CreditCard },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
@@ -52,12 +59,52 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
   const router = useRouter();
 
   const handleSignOut = () => {
-    // Clear session cookie
+    // Clear session cookies
     document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     if (onClose) onClose();
     router.push('/sign-in');
   };
+
+  const renderNavList = (items: NavItem[]) => (
+    <div className="space-y-0.5">
+      {items.map((item) => {
+        const isActive =
+          pathname === item.href ||
+          (item.href !== '/dashboard' && pathname.startsWith(item.href));
+        const Icon = item.icon;
+
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            onClick={onClose}
+            className={cn(
+              'flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all group',
+              isActive
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
+                : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+            )}
+          >
+            <div className="flex items-center gap-2.5">
+              <Icon
+                className={cn(
+                  'w-4 h-4 transition-colors',
+                  isActive ? 'text-emerald-400' : 'text-neutral-400 group-hover:text-neutral-200'
+                )}
+              />
+              <span>{item.name}</span>
+            </div>
+            {item.badge && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
+                {item.badge}
+              </span>
+            )}
+          </Link>
+        );
+      })}
+    </div>
+  );
 
   return (
     <aside
@@ -86,58 +133,28 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
         )}
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-          Core Platform
+      {/* Navigation Links in 3 Clean Groups */}
+      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+        <div>
+          <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+            Core Platform
+          </div>
+          {renderNavList(coreNavItems)}
         </div>
-        {navItems.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== '/dashboard' && pathname.startsWith(item.href));
-          const Icon = item.icon;
 
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={onClose}
-              className={cn(
-                'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all group',
-                isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
-                  : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={cn(
-                    'w-4 h-4 transition-colors',
-                    isActive ? 'text-emerald-400' : 'text-neutral-400 group-hover:text-neutral-200'
-                  )}
-                />
-                <span>{item.name}</span>
-              </div>
-              {item.badge && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-
-        <div className="pt-6 px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-          Developers & Docs
+        <div>
+          <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+            Developer Services
+          </div>
+          {renderNavList(developerNavItems)}
         </div>
-        <Link
-          href="/docs"
-          onClick={onClose}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition-all"
-        >
-          <BookOpen className="w-4 h-4 text-neutral-400" />
-          <span>API Reference & SDKs</span>
-        </Link>
+
+        <div>
+          <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+            Account & Operations
+          </div>
+          {renderNavList(accountNavItems)}
+        </div>
       </nav>
 
       {/* Workspace & Mode Footer */}

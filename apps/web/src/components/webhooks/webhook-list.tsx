@@ -499,6 +499,7 @@ export function WebhookList({ initialWebhooks = [] }: WebhookListProps) {
         isOpen={!!selectedLogsWebhook}
         onClose={() => setSelectedLogsWebhook(null)}
         webhook={selectedLogsWebhook}
+        onRefreshWebhook={() => fetchWebhooks()}
       />
     </div>
   );

@@ -108,8 +108,11 @@ export class UsageMeter {
 
     const totalCostCents = voiceCostCents + smsCostCents + phoneNumbersCostCents;
 
-    // Retrieve workspace or default balance (in cents, e.g. 5000 = $50.00)
-    const currentBalanceCents = 5000 - totalCostCents;
+    const ws = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: { balanceCents: true },
+    });
+    const currentBalanceCents = ws?.balanceCents ?? 0;
 
     return {
       workspaceId,
