@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "preserve",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@talkie/types": ["packages/types/src"],
+      "@talkie/types/*": ["packages/types/src/*"],
+      "@talkie/config": ["packages/config/src"],
+      "@talkie/config/*": ["packages/config/src/*"],
+      "@talkie/ui": ["packages/ui/src"],
+      "@talkie/ui/*": ["packages/ui/src/*"],
+      "@talkie/database": ["packages/database/src"],
+      "@talkie/database/*": ["packages/database/src/*"],
+      "@talkie/telephony": ["packages/telephony/src"],
+      "@talkie/telephony/*": ["packages/telephony/src/*"],
+      "@talkie/voice": ["packages/voice/src"],
+      "@talkie/voice/*": ["packages/voice/src/*"],
+      "@talkie/webhook-engine": ["packages/webhook-engine/src"],
+      "@talkie/webhook-engine/*": ["packages/webhook-engine/src/*"],
+      "@talkie/billing": ["packages/billing/src"],
+      "@talkie/billing/*": ["packages/billing/src/*"],
+      "@talkie/sdk": ["packages/sdk-js/src"],
+      "@talkie/sdk/*": ["packages/sdk-js/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next"]
+}
