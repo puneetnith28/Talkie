@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UsageMeter } from '@talkie/billing';
 import { prisma } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 
 const meter = new UsageMeter();
 
 export async function GET(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     const summary = await meter.getWorkspaceUsageSummary(workspaceId);
 

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MockBillingProvider } from '@talkie/billing';
+import { UsageService } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const billingProvider = new MockBillingProvider();
@@ -10,7 +12,8 @@ const checkoutSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const body = await req.json();
 
     const parsed = checkoutSchema.safeParse(body);
@@ -25,16 +28,26 @@ export async function POST(req: NextRequest) {
     const protocol = host.includes('localhost') ? 'http' : 'https';
     const origin = `${protocol}://${host}`;
 
-    const session = await billingProvider.createCheckoutSession({
+    const checkoutSession = await billingProvider.createCheckoutSession({
       workspaceId,
       amountCents: parsed.data.amountCents,
       successUrl: `${origin}/dashboard/usage?status=success`,
       cancelUrl: `${origin}/dashboard/usage?status=cancelled`,
     });
 
+    // In local/mock mode, automatically credit the balance
+    const updatedWorkspace = await UsageService.topUpBalance(
+      workspaceId,
+      parsed.data.amountCents,
+      `Credit top-up via checkout`
+    );
+
     return NextResponse.json({
       success: true,
-      data: session,
+      data: {
+        ...checkoutSession,
+        newBalanceCents: updatedWorkspace.balanceCents,
+      },
     });
   } catch (error: any) {
     return NextResponse.json(

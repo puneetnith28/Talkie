@@ -114,4 +114,36 @@ export class UsageService {
       recentRecords: records.slice(0, 50),
     };
   }
+
+  /**
+   * Add funds / credits to workspace balance and create topup audit record
+   */
+  static async topUpBalance(workspaceId: string, amountCents: number, description?: string) {
+    return prisma.$transaction(async (tx) => {
+      const updated = await tx.workspace.update({
+        where: { id: workspaceId },
+        data: {
+          balanceCents: {
+            increment: amountCents,
+          },
+        },
+      });
+
+      await tx.usageRecord.create({
+        data: {
+          workspaceId,
+          type: 'topup',
+          quantity: 1,
+          unit: 'credit',
+          costCents: -amountCents,
+          metadataJson: JSON.stringify({
+            description: description || `Account Balance Top-up (+$${(amountCents / 100).toFixed(2)})`,
+            amountCents,
+          }),
+        },
+      });
+
+      return updated;
+    });
+  }
 }
