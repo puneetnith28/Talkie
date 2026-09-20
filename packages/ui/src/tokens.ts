@@ -2,9 +2,45 @@
 
 export const tokens = {
   fonts: {
-    heading: 'var(--font-heading, "Alte Haas Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
-    sans: 'var(--font-sans, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
-    mono: 'var(--font-mono, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)',
+    sans: 'var(--font-sans, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif)',
+    heading: 'var(--font-heading, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
+    mono: 'var(--font-mono, "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace)',
+  },
+
+  typography: {
+    fontSizes: {
+      xs: '0.75rem',     // 12px
+      sm: '0.875rem',    // 14px
+      base: '1rem',      // 16px
+      lg: '1.125rem',    // 18px
+      xl: '1.25rem',     // 20px
+      '2xl': '1.5rem',   // 24px
+      '3xl': '1.875rem', // 30px
+      '4xl': '2.25rem',  // 36px
+      '5xl': '3rem',     // 48px
+      '6xl': '3.75rem',  // 60px
+    },
+    fontWeights: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+      black: 900,
+    },
+    lineHeights: {
+      none: '1',
+      tight: '1.15',
+      snug: '1.3',
+      normal: '1.5',
+      relaxed: '1.65',
+    },
+    letterSpacings: {
+      tighter: '-0.03em',
+      tight: '-0.015em',
+      normal: '0em',
+      wide: '0.025em',
+      widest: '0.08em',
+    },
   },
 
   colors: {
