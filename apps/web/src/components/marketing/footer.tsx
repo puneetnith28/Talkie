@@ -1,10 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
+import { GridBackground } from '@talkie/ui';
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-zinc-850 bg-zinc-950/90 py-12 text-xs text-zinc-400">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="relative border-t border-white/[0.08] bg-[#07080a] py-14 text-xs text-zinc-400 overflow-hidden font-sans">
+      {/* Subtle Structural Grid Overlay */}
+      <GridBackground size={48} variant="subtle" mask="top" opacity={0.35} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-3">
