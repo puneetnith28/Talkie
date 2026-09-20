@@ -7,3 +7,4 @@ export * from './prompt-builder';
 export * from './llm-engine';
 export * from './tts-service';
 export * from './session-coordinator';
+export * from './production-voice';
