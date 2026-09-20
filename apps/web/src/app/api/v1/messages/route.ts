@@ -7,6 +7,7 @@ import {
   IdempotencyService,
 } from '@talkie/database';
 import { MockMessagingProvider } from '@talkie/telephony';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const createMessageSchema = z.object({
@@ -22,7 +23,8 @@ const messagingProvider = new MockMessagingProvider();
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const idempotencyKey = req.headers.get('idempotency-key') || req.headers.get('x-idempotency-key');
 
     const body = await req.json();
@@ -142,7 +144,8 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const { searchParams } = new URL(req.url);
     const conversationId = searchParams.get('conversationId');
     const limit = parseInt(searchParams.get('limit') || '50', 10);

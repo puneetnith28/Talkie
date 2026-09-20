@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MessageService, prisma } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 
 export async function GET(
   req: NextRequest,
@@ -7,7 +8,8 @@ export async function GET(
 ) {
   try {
     const { id: conversationId } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     const conversation = await prisma.conversation.findFirst({
       where: { id: conversationId, workspaceId },

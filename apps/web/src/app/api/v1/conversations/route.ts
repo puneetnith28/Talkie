@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MessageService } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const createConversationSchema = z.object({
@@ -11,7 +12,8 @@ const createConversationSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const { searchParams } = new URL(req.url);
     const channel = searchParams.get('channel') || undefined;
     const agentId = searchParams.get('agentId') || undefined;
@@ -42,7 +44,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const body = await req.json();
 
     const parsed = createConversationSchema.safeParse(body);
