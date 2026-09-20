@@ -212,146 +212,278 @@ export function WebhookList({ initialWebhooks = [] }: WebhookListProps) {
             }}
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-white/[0.08] bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-semibold text-[10px]">
-                  <th className="py-3 px-4">Endpoint Destination</th>
-                  <th className="py-3 px-4">Signing Secret</th>
-                  <th className="py-3 px-4">Event Subscriptions</th>
-                  <th className="py-3 px-4">Status & Health</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {webhooks.map((wh) => {
-                  const isRevealed = !!revealedSecrets[wh.id];
-                  const events: string[] = JSON.parse(wh.eventsJson || '["*"]');
-                  const feedback = testFeedback[wh.id];
-                  const deliveriesCount = wh._count?.deliveries ?? wh.deliveries?.length ?? 0;
+          <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-white/[0.08] bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-semibold text-[10px]">
+                    <th className="py-3 px-4">Endpoint Destination</th>
+                    <th className="py-3 px-4">Signing Secret</th>
+                    <th className="py-3 px-4">Event Subscriptions</th>
+                    <th className="py-3 px-4">Status & Health</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.04]">
+                  {webhooks.map((wh) => {
+                    const isRevealed = !!revealedSecrets[wh.id];
+                    const events: string[] = JSON.parse(wh.eventsJson || '["*"]');
+                    const feedback = testFeedback[wh.id];
+                    const deliveriesCount = wh._count?.deliveries ?? wh.deliveries?.length ?? 0;
 
-                  return (
-                    <tr key={wh.id} className="hover:bg-white/[0.02] transition-colors group">
-                      <td className="py-3.5 px-4 font-mono font-semibold text-white max-w-xs truncate">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                            <Webhook className="w-3.5 h-3.5" />
+                    return (
+                      <tr key={wh.id} className="hover:bg-white/[0.02] transition-colors group">
+                        <td className="py-3.5 px-4 font-mono font-semibold text-white max-w-xs truncate">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                              <Webhook className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="truncate">{wh.url}</span>
                           </div>
-                          <span className="truncate">{wh.url}</span>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="py-3.5 px-4 font-mono">
-                        <div className="flex items-center gap-2">
-                          <span className="text-neutral-400 font-mono text-[11px]">
-                            {isRevealed ? wh.secret : '••••••••••••••••••••••••'}
-                          </span>
+                        <td className="py-3.5 px-4 font-mono">
+                          <div className="flex items-center gap-2">
+                            <span className="text-neutral-400 font-mono text-[11px]">
+                              {isRevealed ? wh.secret : '••••••••••••••••••••••••'}
+                            </span>
+                            <button
+                              onClick={() => toggleSecret(wh.id)}
+                              className="text-neutral-500 hover:text-white p-0.5"
+                              title={isRevealed ? 'Hide secret' : 'Show secret'}
+                            >
+                              {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </button>
+                            <button
+                              onClick={() => copyToClipboard(wh.secret, wh.id)}
+                              className="text-neutral-500 hover:text-white p-0.5"
+                              title="Copy secret"
+                            >
+                              {copiedId === wh.id ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <div className="flex flex-wrap gap-1">
+                            {events.map((e) => (
+                              <Badge key={e} variant="neutral" className="text-[9px] font-mono px-1.5 py-0">
+                                {e}
+                              </Badge>
+                            ))}
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={wh.status === 'active' ? 'success' : 'neutral'}
+                              className="text-[10px] uppercase font-mono"
+                            >
+                              {wh.status}
+                            </Badge>
+                            {feedback && (
+                              <span
+                                className={`text-[10px] font-mono flex items-center gap-1 ${
+                                  feedback.success ? 'text-emerald-400' : 'text-red-400'
+                                }`}
+                              >
+                                {feedback.success ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                                {feedback.status} ({feedback.latency}ms)
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSendTest(wh.id)}
+                              disabled={testingId === wh.id}
+                              className="h-7 px-2 text-xs text-emerald-400 hover:bg-emerald-500/10"
+                              title="Send Test Event"
+                            >
+                              <Send className={`w-3.5 h-3.5 mr-1 ${testingId === wh.id ? 'animate-pulse' : ''}`} />
+                              <span>{testingId === wh.id ? 'Testing...' : 'Test'}</span>
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewLogs(wh)}
+                              className="h-7 px-2 text-xs text-neutral-400 hover:text-white"
+                              title="View Delivery Logs"
+                            >
+                              <Activity className="w-3.5 h-3.5 mr-1" />
+                              <span>Logs ({deliveriesCount})</span>
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingWebhook(wh);
+                                setIsCreateOpen(true);
+                              }}
+                              className="h-7 w-7 p-0 text-neutral-400 hover:text-white"
+                              title="Edit"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(wh.id)}
+                              className="h-7 w-7 p-0 text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-white/[0.06]">
+              {webhooks.map((wh) => {
+                const isRevealed = !!revealedSecrets[wh.id];
+                const events: string[] = JSON.parse(wh.eventsJson || '["*"]');
+                const feedback = testFeedback[wh.id];
+                const deliveriesCount = wh._count?.deliveries ?? wh.deliveries?.length ?? 0;
+
+                return (
+                  <div key={wh.id} className="p-4 space-y-3 hover:bg-white/[0.02] transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                          <Webhook className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-mono font-semibold text-white truncate">
+                            {wh.url}
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Badge
+                              variant={wh.status === 'active' ? 'success' : 'neutral'}
+                              className="text-[9px] uppercase font-mono"
+                            >
+                              {wh.status}
+                            </Badge>
+                            {feedback && (
+                              <span
+                                className={`text-[10px] font-mono flex items-center gap-0.5 ${
+                                  feedback.success ? 'text-emerald-400' : 'text-red-400'
+                                }`}
+                              >
+                                {feedback.success ? <CheckCircle2 className="w-2.5 h-2.5" /> : <AlertCircle className="w-2.5 h-2.5" />}
+                                {feedback.status} ({feedback.latency}ms)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Secret & Events */}
+                    <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-neutral-500 text-[11px] font-semibold uppercase tracking-wider">Signing Secret</span>
+                        <div className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-300">
+                          <span>{isRevealed ? wh.secret : '••••••••••••••••'}</span>
                           <button
                             onClick={() => toggleSecret(wh.id)}
-                            className="text-neutral-500 hover:text-white p-0.5"
-                            title={isRevealed ? 'Hide secret' : 'Show secret'}
+                            className="text-neutral-400 hover:text-white p-0.5"
                           >
-                            {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            {isRevealed ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                           </button>
                           <button
                             onClick={() => copyToClipboard(wh.secret, wh.id)}
-                            className="text-neutral-500 hover:text-white p-0.5"
-                            title="Copy secret"
+                            className="text-neutral-400 hover:text-white p-0.5"
                           >
                             {copiedId === wh.id ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <Check className="w-3 h-3 text-emerald-400" />
                             ) : (
-                              <Copy className="w-3.5 h-3.5" />
+                              <Copy className="w-3 h-3" />
                             )}
                           </button>
                         </div>
-                      </td>
+                      </div>
 
-                      <td className="py-3.5 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {events.map((e) => (
-                            <Badge key={e} variant="neutral" className="text-[9px] font-mono px-1.5 py-0">
-                              {e}
-                            </Badge>
-                          ))}
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={wh.status === 'active' ? 'success' : 'neutral'}
-                            className="text-[10px] uppercase font-mono"
-                          >
-                            {wh.status}
+                      <div className="flex flex-wrap gap-1 pt-1 border-t border-white/[0.04]">
+                        {events.map((e) => (
+                          <Badge key={e} variant="neutral" className="text-[9px] font-mono px-1.5 py-0">
+                            {e}
                           </Badge>
-                          {feedback && (
-                            <span
-                              className={`text-[10px] font-mono flex items-center gap-1 ${
-                                feedback.success ? 'text-emerald-400' : 'text-red-400'
-                              }`}
-                            >
-                              {feedback.success ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                              {feedback.status} ({feedback.latency}ms)
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                        ))}
+                      </div>
+                    </div>
 
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleSendTest(wh.id)}
-                            disabled={testingId === wh.id}
-                            className="h-7 px-2 text-xs text-emerald-400 hover:bg-emerald-500/10"
-                            title="Send Test Event"
-                          >
-                            <Send className={`w-3.5 h-3.5 mr-1 ${testingId === wh.id ? 'animate-pulse' : ''}`} />
-                            <span>{testingId === wh.id ? 'Testing...' : 'Test'}</span>
-                          </Button>
+                    {/* Quick Actions */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendTest(wh.id)}
+                          disabled={testingId === wh.id}
+                          className="h-8 px-2.5 text-xs text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10"
+                        >
+                          <Send className={`w-3.5 h-3.5 mr-1 ${testingId === wh.id ? 'animate-pulse' : ''}`} />
+                          <span>{testingId === wh.id ? 'Testing...' : 'Test'}</span>
+                        </Button>
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewLogs(wh)}
-                            className="h-7 px-2 text-xs text-neutral-400 hover:text-white"
-                            title="View Delivery Logs"
-                          >
-                            <Activity className="w-3.5 h-3.5 mr-1" />
-                            <span>Logs ({deliveriesCount})</span>
-                          </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewLogs(wh)}
+                          className="h-8 px-2.5 text-xs text-neutral-300 border-white/[0.08] hover:text-white"
+                        >
+                          <Activity className="w-3.5 h-3.5 mr-1" />
+                          <span>Logs ({deliveriesCount})</span>
+                        </Button>
+                      </div>
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingWebhook(wh);
-                              setIsCreateOpen(true);
-                            }}
-                            className="h-7 w-7 p-0 text-neutral-400 hover:text-white"
-                            title="Edit"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(wh.id)}
-                            className="h-7 w-7 p-0 text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditingWebhook(wh);
+                            setIsCreateOpen(true);
+                          }}
+                          className="h-8 w-8 p-0 text-neutral-400 hover:text-white"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(wh.id)}
+                          className="h-8 w-8 p-0 text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </Card>

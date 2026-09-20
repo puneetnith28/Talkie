@@ -217,114 +217,207 @@ export function ContactTable({ initialContacts = [] }: ContactTableProps) {
             }
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-white/[0.08] bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-semibold text-[10px]">
-                  <th className="py-3 px-4">Contact</th>
-                  <th className="py-3 px-4">Phone Number</th>
-                  <th className="py-3 px-4">Company</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {contacts.map((contact) => (
-                  <tr key={contact.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="py-3.5 px-4 font-semibold text-white">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">
-                          {(contact.name || 'C').charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="text-xs font-semibold text-white">{contact.name || 'Unnamed Contact'}</div>
-                          <div className="text-[10px] text-neutral-500 font-mono">
-                            Added {new Date(contact.createdAt).toLocaleDateString()}
+          <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-white/[0.08] bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-semibold text-[10px]">
+                    <th className="py-3 px-4">Contact</th>
+                    <th className="py-3 px-4">Phone Number</th>
+                    <th className="py-3 px-4">Company</th>
+                    <th className="py-3 px-4">Email</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.04]">
+                  {contacts.map((contact) => (
+                    <tr key={contact.id} className="hover:bg-white/[0.02] transition-colors group">
+                      <td className="py-3.5 px-4 font-semibold text-white">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">
+                            {(contact.name || 'C').charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="text-xs font-semibold text-white">{contact.name || 'Unnamed Contact'}</div>
+                            <div className="text-[10px] text-neutral-500 font-mono">
+                              Added {new Date(contact.createdAt).toLocaleDateString()}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="py-3.5 px-4 font-mono text-neutral-300">
-                      {contact.phoneNumber}
-                    </td>
+                      <td className="py-3.5 px-4 font-mono text-neutral-300">
+                        {contact.phoneNumber}
+                      </td>
 
-                    <td className="py-3.5 px-4 text-neutral-300">
-                      {contact.company ? (
-                        <div className="flex items-center gap-1.5">
-                          <Building className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>{contact.company}</span>
-                        </div>
-                      ) : (
-                        <span className="text-neutral-600">—</span>
-                      )}
-                    </td>
+                      <td className="py-3.5 px-4 text-neutral-300">
+                        {contact.company ? (
+                          <div className="flex items-center gap-1.5">
+                            <Building className="w-3.5 h-3.5 text-neutral-500" />
+                            <span>{contact.company}</span>
+                          </div>
+                        ) : (
+                          <span className="text-neutral-600">—</span>
+                        )}
+                      </td>
 
-                    <td className="py-3.5 px-4 text-neutral-300">
-                      {contact.email ? (
-                        <div className="flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>{contact.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-neutral-600">—</span>
-                      )}
-                    </td>
+                      <td className="py-3.5 px-4 text-neutral-300">
+                        {contact.email ? (
+                          <div className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-neutral-500" />
+                            <span>{contact.email}</span>
+                          </div>
+                        ) : (
+                          <span className="text-neutral-600">—</span>
+                        )}
+                      </td>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setTargetContactForCall(contact);
-                            setIsCallModalOpen(true);
-                          }}
-                          className="h-7 w-7 p-0 text-emerald-400 hover:bg-emerald-500/10"
-                          title="Call Contact"
-                        >
-                          <PhoneOutgoing className="w-3.5 h-3.5" />
-                        </Button>
-
-                        <Link href="/dashboard/messages">
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 w-7 p-0 text-blue-400 hover:bg-blue-500/10"
-                            title="Message Contact"
+                            onClick={() => {
+                              setTargetContactForCall(contact);
+                              setIsCallModalOpen(true);
+                            }}
+                            className="h-7 w-7 p-0 text-emerald-400 hover:bg-emerald-500/10"
+                            title="Call Contact"
                           >
-                            <MessageSquare className="w-3.5 h-3.5" />
+                            <PhoneOutgoing className="w-3.5 h-3.5" />
                           </Button>
-                        </Link>
 
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditingContact(contact);
-                            setIsModalOpen(true);
-                          }}
-                          className="h-7 w-7 p-0 text-neutral-400 hover:text-white hover:bg-white/[0.05]"
-                          title="Edit"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </Button>
+                          <Link href="/dashboard/messages">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 text-blue-400 hover:bg-blue-500/10"
+                              title="Message Contact"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                            </Button>
+                          </Link>
 
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(contact.id, contact.name)}
-                          className="h-7 w-7 p-0 text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingContact(contact);
+                              setIsModalOpen(true);
+                            }}
+                            className="h-7 w-7 p-0 text-neutral-400 hover:text-white hover:bg-white/[0.05]"
+                            title="Edit"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(contact.id, contact.name)}
+                            className="h-7 w-7 p-0 text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-white/[0.06]">
+              {contacts.map((contact) => (
+                <div key={contact.id} className="p-4 space-y-3 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                        {(contact.name || 'C').charAt(0).toUpperCase()}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <div>
+                        <div className="text-sm font-semibold text-white">{contact.name || 'Unnamed Contact'}</div>
+                        <div className="text-xs text-neutral-400 font-mono mt-0.5">{contact.phoneNumber}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {(contact.company || contact.email) && (
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-400 pt-1">
+                      {contact.company && (
+                        <div className="flex items-center gap-1 text-neutral-300">
+                          <Building className="w-3.5 h-3.5 text-neutral-500" />
+                          <span>{contact.company}</span>
+                        </div>
+                      )}
+                      {contact.email && (
+                        <div className="flex items-center gap-1 text-neutral-300">
+                          <Mail className="w-3.5 h-3.5 text-neutral-500" />
+                          <span>{contact.email}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Actions Bar */}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setTargetContactForCall(contact);
+                          setIsCallModalOpen(true);
+                        }}
+                        className="h-8 px-2.5 text-xs text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10"
+                      >
+                        <PhoneOutgoing className="w-3.5 h-3.5 mr-1" />
+                        Call
+                      </Button>
+
+                      <Link href="/dashboard/messages">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2.5 text-xs text-blue-400 border-blue-500/20 hover:bg-blue-500/10"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 mr-1" />
+                          SMS
+                        </Button>
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingContact(contact);
+                          setIsModalOpen(true);
+                        }}
+                        className="h-8 w-8 p-0 text-neutral-400 hover:text-white"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(contact.id, contact.name)}
+                        className="h-8 w-8 p-0 text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </Card>

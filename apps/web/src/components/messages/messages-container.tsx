@@ -293,14 +293,27 @@ export function MessagesContainer({
         {/* Pane 2: Active Chat Thread & Composer */}
         <div className={`flex-1 flex flex-col h-full overflow-hidden border-r border-white/[0.08] ${!mobileShowChat ? 'hidden md:flex' : 'flex'}`}>
           {mobileShowChat && (
-            <div className="md:hidden p-2 bg-[#0a0c10] border-b border-white/[0.08] flex items-center">
+            <div className="md:hidden px-3 py-2.5 bg-[#0a0c10] border-b border-white/[0.08] flex items-center justify-between">
               <button
+                type="button"
                 onClick={() => setMobileShowChat(false)}
-                className="flex items-center gap-1 text-xs text-neutral-400 hover:text-white p-1"
+                className="flex items-center gap-2 min-h-[44px] text-xs text-emerald-400 hover:text-emerald-300 font-medium px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 active:scale-95 transition"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back to Conversations</span>
+                <span>Conversations</span>
               </button>
+              {selectedConversation && (
+                <div className="flex items-center gap-2 text-right">
+                  <div>
+                    <div className="text-xs font-semibold text-white">
+                      {selectedConversation.contact?.name || selectedConversation.recipientNumber}
+                    </div>
+                    <div className="text-[10px] text-neutral-400 font-mono">
+                      {selectedConversation.channel?.toUpperCase() || 'SMS'}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

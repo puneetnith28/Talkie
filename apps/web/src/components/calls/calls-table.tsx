@@ -288,133 +288,237 @@ export function CallsTable({ initialCalls = [] }: CallsTableProps) {
             }
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-white/[0.08] bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-semibold text-[10px]">
-                  <th className="py-3 px-4">Direction & Contact</th>
-                  <th className="py-3 px-4">Assigned Agent</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Duration</th>
-                  <th className="py-3 px-4">AI Sentiment & Summary</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {calls.map((call) => {
-                  const isOutbound = call.direction === 'outbound';
-                  const callerDisplay = call.fromNumber || call.callerNumber || 'Unknown';
-                  const calleeDisplay = call.toNumber || call.calleeNumber || 'Unknown';
-                  const primaryDisplay = isOutbound ? calleeDisplay : callerDisplay;
-                  const secondaryDisplay = isOutbound ? `From: ${callerDisplay}` : `To: ${calleeDisplay}`;
+          <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-white/[0.08] bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-semibold text-[10px]">
+                    <th className="py-3 px-4">Direction & Contact</th>
+                    <th className="py-3 px-4">Assigned Agent</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Duration</th>
+                    <th className="py-3 px-4">AI Sentiment & Summary</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.04]">
+                  {calls.map((call) => {
+                    const isOutbound = call.direction === 'outbound';
+                    const callerDisplay = call.fromNumber || call.callerNumber || 'Unknown';
+                    const calleeDisplay = call.toNumber || call.calleeNumber || 'Unknown';
+                    const primaryDisplay = isOutbound ? calleeDisplay : callerDisplay;
+                    const secondaryDisplay = isOutbound ? `From: ${callerDisplay}` : `To: ${calleeDisplay}`;
 
-                  return (
-                    <tr
-                      key={call.id}
-                      className="hover:bg-white/[0.02] transition-colors group cursor-pointer"
-                      onClick={() => setSelectedCall(call)}
-                    >
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs flex-shrink-0 ${
-                              isOutbound
-                                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                                : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            }`}
-                          >
-                            {isOutbound ? (
-                              <PhoneOutgoing className="w-4 h-4" />
-                            ) : (
-                              <PhoneIncoming className="w-4 h-4" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="text-xs font-semibold text-white tracking-wide">
-                              {primaryDisplay}
+                    return (
+                      <tr
+                        key={call.id}
+                        className="hover:bg-white/[0.02] transition-colors group cursor-pointer"
+                        onClick={() => setSelectedCall(call)}
+                      >
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs flex-shrink-0 ${
+                                isOutbound
+                                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                  : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              }`}
+                            >
+                              {isOutbound ? (
+                                <PhoneOutgoing className="w-4 h-4" />
+                              ) : (
+                                <PhoneIncoming className="w-4 h-4" />
+                              )}
                             </div>
-                            <div className="text-[10px] text-neutral-500 font-mono flex items-center gap-1.5 mt-0.5">
-                              <span className="uppercase text-neutral-400 font-semibold">{call.direction}</span>
-                              <span>•</span>
-                              <span>{secondaryDisplay}</span>
-                              <span>•</span>
-                              <span>{new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <div>
+                              <div className="text-xs font-semibold text-white tracking-wide">
+                                {primaryDisplay}
+                              </div>
+                              <div className="text-[10px] text-neutral-500 font-mono flex items-center gap-1.5 mt-0.5">
+                                <span className="uppercase text-neutral-400 font-semibold">{call.direction}</span>
+                                <span>•</span>
+                                <span>{secondaryDisplay}</span>
+                                <span>•</span>
+                                <span>{new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="py-3.5 px-4 text-neutral-300">
-                        {call.agent ? (
-                          <div className="flex items-center gap-1.5 text-xs text-blue-400 font-medium">
-                            <Bot className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span>{call.agent.name}</span>
-                          </div>
-                        ) : (
-                          <span className="text-neutral-500 italic">Unassigned</span>
-                        )}
-                      </td>
+                        <td className="py-3.5 px-4 text-neutral-300">
+                          {call.agent ? (
+                            <div className="flex items-center gap-1.5 text-xs text-blue-400 font-medium">
+                              <Bot className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span>{call.agent.name}</span>
+                            </div>
+                          ) : (
+                            <span className="text-neutral-500 italic">Unassigned</span>
+                          )}
+                        </td>
 
-                      <td className="py-3.5 px-4">
-                        <Badge
-                          variant={getStatusBadgeVariant(call.status)}
-                          className="text-[10px] uppercase font-mono tracking-wider"
-                        >
-                          {call.status}
-                        </Badge>
-                      </td>
-
-                      <td className="py-3.5 px-4 font-mono text-neutral-300">
-                        {call.durationSeconds > 0 ? (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-neutral-500" />
-                            <span>
-                              {Math.floor(call.durationSeconds / 60)}m {call.durationSeconds % 60}s
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-neutral-600">—</span>
-                        )}
-                      </td>
-
-                      <td className="py-3.5 px-4 max-w-xs truncate text-neutral-400">
-                        {call.summary ? (
-                          <div className="flex items-center gap-1.5 truncate">
-                            <Sparkles className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-                            <span className="truncate text-xs text-neutral-300">{call.summary}</span>
-                          </div>
-                        ) : (
-                          <span className="text-neutral-600 italic">No summary generated</span>
-                        )}
-                      </td>
-
-                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedCall(call)}
-                            className="h-7 px-2 text-xs text-neutral-400 hover:text-white"
+                        <td className="py-3.5 px-4">
+                          <Badge
+                            variant={getStatusBadgeVariant(call.status)}
+                            className="text-[10px] uppercase font-mono tracking-wider"
                           >
-                            <FileText className="w-3.5 h-3.5 mr-1" />
-                            <span>Transcript</span>
-                          </Button>
-                          <Link href={`/dashboard/calls/${call.id}`}>
+                            {call.status}
+                          </Badge>
+                        </td>
+
+                        <td className="py-3.5 px-4 font-mono text-neutral-300">
+                          {call.durationSeconds > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-neutral-500" />
+                              <span>
+                                {Math.floor(call.durationSeconds / 60)}m {call.durationSeconds % 60}s
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-neutral-600">—</span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 max-w-xs truncate text-neutral-400">
+                          {call.summary ? (
+                            <div className="flex items-center gap-1.5 truncate">
+                              <Sparkles className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                              <span className="truncate text-xs text-neutral-300">{call.summary}</span>
+                            </div>
+                          ) : (
+                            <span className="text-neutral-600 italic">No summary generated</span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-1.5">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 px-2 text-xs text-blue-400 hover:text-blue-300"
+                              onClick={() => setSelectedCall(call)}
+                              className="h-7 px-2 text-xs text-neutral-400 hover:text-white"
                             >
-                              <ExternalLink className="w-3.5 h-3.5" />
+                              <FileText className="w-3.5 h-3.5 mr-1" />
+                              <span>Transcript</span>
                             </Button>
-                          </Link>
+                            <Link href={`/dashboard/calls/${call.id}`}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs text-blue-400 hover:text-blue-300"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-white/[0.06]">
+              {calls.map((call) => {
+                const isOutbound = call.direction === 'outbound';
+                const callerDisplay = call.fromNumber || call.callerNumber || 'Unknown';
+                const calleeDisplay = call.toNumber || call.calleeNumber || 'Unknown';
+                const primaryDisplay = isOutbound ? calleeDisplay : callerDisplay;
+                const secondaryDisplay = isOutbound ? `From: ${callerDisplay}` : `To: ${calleeDisplay}`;
+
+                return (
+                  <div
+                    key={call.id}
+                    onClick={() => setSelectedCall(call)}
+                    className="p-4 space-y-3 hover:bg-white/[0.02] active:bg-white/[0.04] transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs flex-shrink-0 ${
+                            isOutbound
+                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                              : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          }`}
+                        >
+                          {isOutbound ? (
+                            <PhoneOutgoing className="w-4 h-4" />
+                          ) : (
+                            <PhoneIncoming className="w-4 h-4" />
+                          )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <div>
+                          <div className="text-sm font-semibold text-white tracking-wide font-mono">
+                            {primaryDisplay}
+                          </div>
+                          <div className="text-[11px] text-neutral-400 font-mono mt-0.5">
+                            {secondaryDisplay}
+                          </div>
+                        </div>
+                      </div>
+
+                      <Badge
+                        variant={getStatusBadgeVariant(call.status)}
+                        className="text-[10px] uppercase font-mono tracking-wider shrink-0"
+                      >
+                        {call.status}
+                      </Badge>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400 pt-1 border-t border-white/[0.04]">
+                      {call.agent && (
+                        <div className="flex items-center gap-1 text-blue-400 font-medium">
+                          <Bot className="w-3.5 h-3.5" />
+                          <span>{call.agent.name}</span>
+                        </div>
+                      )}
+                      {call.durationSeconds > 0 && (
+                        <div className="flex items-center gap-1 font-mono text-neutral-300">
+                          <Clock className="w-3 h-3 text-neutral-500" />
+                          <span>
+                            {Math.floor(call.durationSeconds / 60)}m {call.durationSeconds % 60}s
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-neutral-500 text-[10px] font-mono ml-auto">
+                        {new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+
+                    {call.summary && (
+                      <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.04] text-xs text-neutral-300 flex items-start gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <p className="line-clamp-2 text-[11px] leading-relaxed">{call.summary}</p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-end gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedCall(call)}
+                        className="h-8 px-3 text-xs text-neutral-300 border-white/[0.1] hover:text-white"
+                      >
+                        <FileText className="w-3.5 h-3.5 mr-1.5" />
+                        Transcript
+                      </Button>
+                      <Link href={`/dashboard/calls/${call.id}`}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                          Details
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </Card>
