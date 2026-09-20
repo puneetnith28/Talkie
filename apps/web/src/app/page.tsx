@@ -9,7 +9,6 @@ import { TranscriptionDemo } from '@/components/marketing/transcription-demo';
 import { CodeShowcase } from '@/components/marketing/code-showcase';
 import { MarketingUseCases } from '@/components/marketing/use-cases';
 import { MarketingFAQ } from '@/components/marketing/faq-accordion';
-import { MarketingFooter } from '@/components/marketing/footer';
 import { DotBackground, GlowBackground } from '@talkie/ui';
 import '@/styles/marketing.css';
 
@@ -65,9 +64,6 @@ export default function HomePage() {
 
       {/* FAQ Accordion */}
       <MarketingFAQ />
-
-      {/* Footer */}
-      <MarketingFooter />
     </div>
   );
 }
