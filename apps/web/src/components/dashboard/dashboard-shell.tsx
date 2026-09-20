@@ -7,6 +7,7 @@ import { Sidebar } from './sidebar';
 import { DemoModeAlert } from './demo-mode-alert';
 import { Button } from '@talkie/ui';
 import { Terminal, Menu, LogOut } from 'lucide-react';
+import { UserButton, useClerk } from '@clerk/nextjs';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -98,6 +99,17 @@ export function DashboardShell({ children }: DashboardShellProps) {
     };
   }, [mobileDrawerOpen]);
 
+  const { signOut } = useClerk();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut?.();
+    } catch {}
+    document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    router.push('/sign-in');
+  };
+
   return (
     <div className="flex h-screen bg-[#08090b] text-white overflow-hidden font-sans">
       {/* Desktop Sidebar (visible on md+) */}
@@ -167,22 +179,37 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </Button>
             </Link>
 
-            <Link href="/dashboard/settings">
-              <div
-                title={`${session.userEmail} (${session.isDemoMode ? 'Demo Mode' : 'Clerk Authenticated'})`}
-                className="w-8 h-8 rounded-full bg-neutral-800 border border-white/[0.1] flex items-center justify-center text-xs font-medium text-neutral-200 select-none cursor-pointer hover:border-emerald-500/40 transition"
-              >
-                {session.userInitials}
+            {!session.isDemoMode ? (
+              <div className="flex items-center">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox:
+                        'w-8 h-8 rounded-full border border-white/[0.1] hover:border-emerald-500/40 transition',
+                      userButtonPopoverCard:
+                        'bg-[#0a0c10] border border-white/[0.1] shadow-2xl text-white',
+                      userButtonPopoverActionButton:
+                        'text-neutral-300 hover:text-white hover:bg-white/[0.05]',
+                      userButtonPopoverActionButtonText:
+                        'text-xs text-neutral-300 font-medium',
+                    },
+                  }}
+                />
               </div>
-            </Link>
+            ) : (
+              <Link href="/dashboard/settings">
+                <div
+                  title={`${session.userEmail} (Demo Mode)`}
+                  className="w-8 h-8 rounded-full bg-neutral-800 border border-white/[0.1] flex items-center justify-center text-xs font-medium text-neutral-200 select-none cursor-pointer hover:border-emerald-500/40 transition"
+                >
+                  {session.userInitials}
+                </div>
+              </Link>
+            )}
 
             <button
               type="button"
-              onClick={() => {
-                document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-                document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-                router.push('/sign-in');
-              }}
+              onClick={handleSignOut}
               title="Sign Out"
               className="p-1.5 rounded-lg text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition"
             >

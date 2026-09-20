@@ -45,3 +45,5 @@ plan.md
 *.sqlite
 *.sqlite-journal
 packages/database/prisma/*.db
+
+.env

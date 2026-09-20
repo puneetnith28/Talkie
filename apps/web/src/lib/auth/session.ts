@@ -47,7 +47,7 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
             isDemoMode: false,
           };
         } else if (user) {
-          // Provision workspace for user
+          // Provision workspace for existing user
           const synced = await syncClerkUser({
             clerkUserId: userId,
             email: user.email,
@@ -66,6 +66,64 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
             isAuthenticated: true,
             isDemoMode: false,
           };
+        } else if (userId) {
+          // Just-in-time user creation if webhook has not yet processed
+          try {
+            const { createClerkClient } = await import('@clerk/backend');
+            const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+            const clerkUser = await clerk.users.getUser(userId);
+            const primaryEmail =
+              clerkUser.emailAddresses?.find((e) => e.id === clerkUser.primaryEmailAddressId)?.emailAddress ||
+              clerkUser.emailAddresses?.[0]?.emailAddress ||
+              `${userId}@user.clerk.dev`;
+            const fullName =
+              [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') ||
+              clerkUser.username ||
+              'Talkie User';
+
+            const synced = await syncClerkUser({
+              clerkUserId: userId,
+              email: primaryEmail,
+              name: fullName,
+              imageUrl: clerkUser.imageUrl,
+            });
+
+            return {
+              user: {
+                userId: synced.user.id,
+                email: synced.user.email,
+                workspaceId: synced.workspace.id,
+                workspaceSlug: synced.workspace.slug,
+                role: (synced.workspace.role as WorkspaceRole) || 'owner',
+                isDemoMode: false,
+              },
+              workspaceId: synced.workspace.id,
+              isAuthenticated: true,
+              isDemoMode: false,
+            };
+          } catch (clerkErr) {
+            // Fallback lightweight sync
+            const fallbackEmail = `${userId}@user.clerk.dev`;
+            const synced = await syncClerkUser({
+              clerkUserId: userId,
+              email: fallbackEmail,
+              name: 'Talkie User',
+            });
+
+            return {
+              user: {
+                userId: synced.user.id,
+                email: synced.user.email,
+                workspaceId: synced.workspace.id,
+                workspaceSlug: synced.workspace.slug,
+                role: (synced.workspace.role as WorkspaceRole) || 'owner',
+                isDemoMode: false,
+              },
+              workspaceId: synced.workspace.id,
+              isAuthenticated: true,
+              isDemoMode: false,
+            };
+          }
         }
       }
     } catch (err) {

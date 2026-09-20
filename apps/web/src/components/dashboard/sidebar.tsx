@@ -19,6 +19,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { cn } from '@talkie/ui';
+import { useClerk } from '@clerk/nextjs';
 
 export interface NavItem {
   name: string;
@@ -57,8 +58,12 @@ interface SidebarProps {
 export function Sidebar({ onClose, className, showCloseButton = false, isDemoMode = true }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { signOut } = useClerk();
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      await signOut?.();
+    } catch {}
     // Clear session cookies
     document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
