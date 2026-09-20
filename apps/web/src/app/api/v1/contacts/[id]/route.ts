@@ -1,0 +1,86 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { ContactService, prisma } from '@talkie/database';
+import { z } from 'zod';
+
+const updateContactSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().email().optional().or(z.literal('')),
+  company: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+
+    const contact = await ContactService.getById(workspaceId, id);
+    if (!contact) {
+      return NextResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: 'Contact not found' } },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: contact });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: { code: 'INTERNAL_ERROR', message: error.message } },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const body = await req.json();
+
+    const parsed = updateContactSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.issues[0].message } },
+        { status: 400 }
+      );
+    }
+
+    const updated = await ContactService.update(workspaceId, id, {
+      name: parsed.data.name,
+      email: parsed.data.email || undefined,
+      company: parsed.data.company,
+      notes: parsed.data.notes,
+    });
+
+    return NextResponse.json({ success: true, data: updated });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: { code: 'INTERNAL_ERROR', message: error.message } },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+
+    await ContactService.delete(workspaceId, id);
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: { code: 'INTERNAL_ERROR', message: error.message } },
+      { status: 500 }
+    );
+  }
+}

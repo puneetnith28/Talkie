@@ -63,4 +63,35 @@ export class IdempotencyService {
       },
     });
   }
+
+  /**
+   * Helper alias to check idempotency key
+   */
+  static async check(workspaceId: string, key: string) {
+    const res = await this.get(key, workspaceId);
+    if (!res) return null;
+    return {
+      statusCode: res.statusCode,
+      responseJson: JSON.stringify(res.body),
+    };
+  }
+
+  /**
+   * Helper alias to save idempotency response
+   */
+  static async save(
+    workspaceId: string,
+    key: string,
+    endpoint: string,
+    responseCode: number,
+    responseBody: any
+  ) {
+    return this.set({
+      workspaceId,
+      key,
+      endpoint,
+      responseCode,
+      responseBody,
+    });
+  }
 }

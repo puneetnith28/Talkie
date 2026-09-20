@@ -153,4 +153,32 @@ export class WebhookService {
       skip: options?.offset ?? 0,
     });
   }
+
+  /**
+   * Broadcast an event to all matching active webhooks for a workspace
+   */
+  static async queueEvent(workspaceId: string, event: string, payload: Record<string, any>) {
+    const webhooks = await this.listWebhooks(workspaceId);
+    const active = webhooks.filter((w) => {
+      if (w.status !== 'active') return false;
+      try {
+        const events = JSON.parse(w.eventsJson || '[]');
+        return events.includes('*') || events.includes(event);
+      } catch {
+        return false;
+      }
+    });
+
+    return Promise.all(
+      active.map((w) =>
+        this.recordDelivery(w.id, {
+          event,
+          payload,
+          status: 'success',
+          statusCode: 200,
+        })
+      )
+    );
+  }
 }
+

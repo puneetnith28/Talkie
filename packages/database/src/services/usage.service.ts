@@ -4,8 +4,9 @@ import type { UsageType } from '@talkie/types';
 export interface RecordUsageInput {
   type: UsageType | string;
   quantity: number;
-  unit: string;
+  unit?: string;
   costCents?: number;
+  description?: string;
   metadata?: Record<string, any>;
 }
 
@@ -15,6 +16,10 @@ export class UsageService {
    */
   static async recordUsage(workspaceId: string, input: RecordUsageInput) {
     const costCents = input.costCents ?? 0;
+    const metadata = {
+      ...(input.metadata || {}),
+      ...(input.description ? { description: input.description } : {}),
+    };
 
     return prisma.$transaction(async (tx) => {
       const record = await tx.usageRecord.create({
@@ -22,9 +27,9 @@ export class UsageService {
           workspaceId,
           type: input.type,
           quantity: input.quantity,
-          unit: input.unit,
+          unit: input.unit ?? 'units',
           costCents,
-          metadataJson: input.metadata ? JSON.stringify(input.metadata) : null,
+          metadataJson: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : null,
         },
       });
 
@@ -40,6 +45,32 @@ export class UsageService {
       }
 
       return record;
+    });
+  }
+
+  /**
+   * Get current account balance for workspace in cents
+   */
+  static async getBalance(workspaceId: string): Promise<number> {
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: { balanceCents: true },
+    });
+    return workspace?.balanceCents ?? 0;
+  }
+
+  /**
+   * Get usage record history
+   */
+  static async getUsageHistory(
+    workspaceId: string,
+    options?: { limit?: number; offset?: number }
+  ) {
+    return prisma.usageRecord.findMany({
+      where: { workspaceId },
+      orderBy: { timestamp: 'desc' },
+      take: options?.limit ?? 50,
+      skip: options?.offset ?? 0,
     });
   }
 

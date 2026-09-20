@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { MockTelephonyProvider } from './index';
+import { createHmac } from 'crypto';
+import { MockTelephonyProvider, MockMessagingProvider } from './index';
 
 describe('Telephony Provider & Mock Implementation', () => {
   const provider = new MockTelephonyProvider();
@@ -28,5 +29,47 @@ describe('Telephony Provider & Mock Implementation', () => {
 
     const release = await provider.releaseNumber(provision.providerNumberId);
     expect(release.success).toBe(true);
+  });
+});
+
+describe('Messaging Provider & Mock Messaging Implementation', () => {
+  it('should send SMS message, compute segments, and transition to delivered', async () => {
+    const messaging = new MockMessagingProvider();
+
+    const res = await messaging.sendMessage({
+      from: '+14155550100',
+      to: '+14155550199',
+      body: 'Hello from Talkie carrier test!',
+    });
+
+    expect(res.messageId).toMatch(/^msg_mock_/);
+    expect(res.status).toBe('sent');
+    expect(res.segmentCount).toBe(1);
+    expect(res.costCents).toBe(1);
+  });
+
+  it('should simulate inbound SMS with raw carrier payload', async () => {
+    const messaging = new MockMessagingProvider();
+
+    const inbound = await messaging.simulateInboundMessage({
+      from: '+14155550199',
+      to: '+14155550100',
+      body: 'I need help with my appointment.',
+    });
+
+    expect(inbound.messageId).toMatch(/^in_msg_/);
+    expect(inbound.body).toBe('I need help with my appointment.');
+    expect(inbound.rawPayload?.From).toBe('+14155550199');
+  });
+
+  it('should verify webhook signatures accurately', async () => {
+    const messaging = new MockMessagingProvider();
+
+    const secret = 'test_webhook_secret_key';
+    const payload = JSON.stringify({ event: 'sms.received', id: '123' });
+    const signature = createHmac('sha256', secret).update(payload).digest('hex');
+
+    expect(messaging.verifyWebhookSignature(signature, payload, secret)).toBe(true);
+    expect(messaging.verifyWebhookSignature('invalid_sig', payload, secret)).toBe(false);
   });
 });
