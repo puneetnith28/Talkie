@@ -11,3 +11,4 @@ export * from './components/tabs';
 export * from './components/skeleton';
 export * from './components/switch';
 export * from './components/toast';
+export * from './components/empty-state';
