@@ -44,9 +44,6 @@ export function MarketingNavbar() {
             T
           </div>
           <span className="font-bold text-xl sm:text-2xl text-white tracking-tight">Talkie</span>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
-            v1.0
-          </span>
         </Link>
 
         {/* Desktop Nav Links */}
@@ -67,12 +64,6 @@ export function MarketingNavbar() {
 
         {/* Right CTA */}
         <div className="hidden sm:flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 rounded-full border border-white/[0.12] bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/[0.25] text-xs font-semibold text-white transition active:scale-95"
-          >
-            Dashboard
-          </Link>
           <Link
             href="/sign-up"
             className="px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-lg shadow-pink-500/25 active:scale-95 transition"
@@ -127,13 +118,6 @@ export function MarketingNavbar() {
           </a>
 
           <div className="pt-4 mt-2 border-t border-white/[0.08] flex flex-col gap-2.5">
-            <Link
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center h-11 rounded-full border border-white/[0.15] bg-white/[0.03] text-xs font-semibold text-white"
-            >
-              Dashboard
-            </Link>
             <Link
               href="/sign-up"
               onClick={() => setMobileMenuOpen(false)}
