@@ -4,7 +4,7 @@ import type { WorkspaceRole } from '@talkie/types';
 export interface CreateWorkspaceInput {
   name: string;
   slug: string;
-  userId: string;
+  userId?: string;
 }
 
 export interface UpdateWorkspaceInput {

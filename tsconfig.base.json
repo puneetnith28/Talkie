@@ -37,7 +37,9 @@
       "@talkie/billing": ["packages/billing/src"],
       "@talkie/billing/*": ["packages/billing/src/*"],
       "@talkie/sdk": ["packages/sdk-js/src"],
-      "@talkie/sdk/*": ["packages/sdk-js/src/*"]
+      "@talkie/sdk/*": ["packages/sdk-js/src/*"],
+      "@talkie/mcp-server": ["packages/mcp-server/src"],
+      "@talkie/mcp-server/*": ["packages/mcp-server/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", ".next"]

@@ -10,6 +10,9 @@ const aliases = {
   '@talkie/webhook-engine': path.resolve(__dirname, 'packages/webhook-engine/src/index.ts'),
   '@talkie/config': path.resolve(__dirname, 'packages/config/src/index.ts'),
   '@talkie/ui': path.resolve(__dirname, 'packages/ui/src/index.ts'),
+  '@talkie/sdk': path.resolve(__dirname, 'packages/sdk-js/src/index.ts'),
+  '@talkie/billing': path.resolve(__dirname, 'packages/billing/src/index.ts'),
+  '@talkie/mcp-server': path.resolve(__dirname, 'packages/mcp-server/src/index.ts'),
 };
 
 export default defineConfig({

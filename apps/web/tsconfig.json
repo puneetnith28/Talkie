@@ -32,7 +32,17 @@
       "@talkie/database": ["../../packages/database/src"],
       "@talkie/database/*": ["../../packages/database/src/*"],
       "@talkie/telephony": ["../../packages/telephony/src"],
-      "@talkie/telephony/*": ["../../packages/telephony/src/*"]
+      "@talkie/telephony/*": ["../../packages/telephony/src/*"],
+      "@talkie/voice": ["../../packages/voice/src"],
+      "@talkie/voice/*": ["../../packages/voice/src/*"],
+      "@talkie/webhook-engine": ["../../packages/webhook-engine/src"],
+      "@talkie/webhook-engine/*": ["../../packages/webhook-engine/src/*"],
+      "@talkie/billing": ["../../packages/billing/src"],
+      "@talkie/billing/*": ["../../packages/billing/src/*"],
+      "@talkie/sdk": ["../../packages/sdk-js/src"],
+      "@talkie/sdk/*": ["../../packages/sdk-js/src/*"],
+      "@talkie/mcp-server": ["../../packages/mcp-server/src"],
+      "@talkie/mcp-server/*": ["../../packages/mcp-server/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

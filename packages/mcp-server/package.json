@@ -1,0 +1,24 @@
+{
+  "name": "@talkie/mcp-server",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "bin": {
+    "talkie-mcp": "./dist/bin.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@talkie/database": "workspace:*",
+    "@talkie/telephony": "workspace:*",
+    "@talkie/voice": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
+  }
+}
