@@ -35,28 +35,29 @@ describe('Phase 3 Checkpoint: Agent & Phone Number Lifecycle Integration', () =>
     expect(agent.voiceSpeed).toBe(1.05);
   });
 
-  it('Step 2: Searches available E.164 phone numbers across US and Canada', async () => {
-    const resultsUS = await provider.searchNumbers({
-      country: 'US',
-      areaCode: '415',
+  it('Step 2: Searches available E.164 phone numbers across Indian telecom circles', async () => {
+    const resultsSTD = await provider.searchNumbers({
+      country: 'IN',
+      areaCode: '80',
       limit: 5,
     });
 
-    expect(resultsUS.length).toBeGreaterThan(0);
-    expect(resultsUS[0].phoneNumber).toMatch(/^\+1415\d{7}$/);
-    expect(resultsUS[0].country).toBe('US');
-    expect(resultsUS[0].capabilities.voice).toBe(true);
-    expect(resultsUS[0].capabilities.sms).toBe(true);
+    expect(resultsSTD.length).toBeGreaterThan(0);
+    expect(resultsSTD[0].phoneNumber).toMatch(/^\+9180\d{7,8}$/);
+    expect(resultsSTD[0].country).toBe('IN');
+    expect(resultsSTD[0].countryCode).toBe('+91');
+    expect(resultsSTD[0].capabilities.voice).toBe(true);
+    expect(resultsSTD[0].capabilities.sms).toBe(true);
 
-    const resultsCA = await provider.searchNumbers({
-      country: 'CA',
-      areaCode: '416',
+    const resultsMobile = await provider.searchNumbers({
+      country: 'IN',
+      areaCode: '98',
       limit: 3,
     });
 
-    expect(resultsCA.length).toBeGreaterThan(0);
-    expect(resultsCA[0].phoneNumber).toMatch(/^\+1416\d{7}$/);
-    expect(resultsCA[0].country).toBe('CA');
+    expect(resultsMobile.length).toBeGreaterThan(0);
+    expect(resultsMobile[0].phoneNumber).toMatch(/^\+9198\d{8}$/);
+    expect(resultsMobile[0].country).toBe('IN');
   });
 
   it('Step 3: Provisions a number and attaches it directly to the agent', async () => {
@@ -65,21 +66,19 @@ describe('Phase 3 Checkpoint: Agent & Phone Number Lifecycle Integration', () =>
       systemPrompt: 'Handle sales inquiries',
     });
 
-    const searchResults = await provider.searchNumbers({ country: 'US', areaCode: '650' });
+    const searchResults = await provider.searchNumbers({ country: 'IN', areaCode: '80' });
     const targetNumber = searchResults[0];
 
-    const provisionedFromProvider = await provider.provisionNumber({
-      phoneNumber: targetNumber.phoneNumber,
-    });
+    const provisionedFromProvider = await provider.provisionNumber(targetNumber.phoneNumber);
     expect(provisionedFromProvider.status).toBe('active');
 
     const dbNumber = await NumberService.provision(workspaceId, {
       phoneNumber: targetNumber.phoneNumber,
       provider: 'mock',
-      providerNumberId: provisionedFromProvider.id,
-      country: 'US',
-      countryCode: '+1',
-      areaCode: '650',
+      providerNumberId: provisionedFromProvider.providerNumberId,
+      country: 'IN',
+      countryCode: '+91',
+      areaCode: '80',
       capabilities: targetNumber.capabilities,
       agentId: agent.id,
     });
@@ -94,9 +93,11 @@ describe('Phase 3 Checkpoint: Agent & Phone Number Lifecycle Integration', () =>
     const agent1 = await AgentService.create(workspaceId, { name: 'Agent 1' });
     const agent2 = await AgentService.create(workspaceId, { name: 'Agent 2' });
 
-    const uniqueNumber = `+1917${Date.now().toString().slice(-7)}`;
+    const uniqueNumber = `+9198${Date.now().toString().slice(-8)}`;
     const num = await NumberService.provision(workspaceId, {
       phoneNumber: uniqueNumber,
+      country: 'IN',
+      countryCode: '+91',
       agentId: agent1.id,
     });
 
@@ -114,9 +115,11 @@ describe('Phase 3 Checkpoint: Agent & Phone Number Lifecycle Integration', () =>
   });
 
   it('Step 5: Releases phone number and marks status as released', async () => {
-    const uniqueNumber = `+1929${(Date.now() + 1).toString().slice(-7)}`;
+    const uniqueNumber = `+9199${(Date.now() + 1).toString().slice(-8)}`;
     const num = await NumberService.provision(workspaceId, {
       phoneNumber: uniqueNumber,
+      country: 'IN',
+      countryCode: '+91',
     });
 
     const released = await NumberService.release(workspaceId, num.id);

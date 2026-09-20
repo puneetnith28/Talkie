@@ -32,20 +32,19 @@ const REAL_CARRIER_NUMBERS: Record<string, Array<{ number: string; region: strin
 };
 
 export function NumberSearchDemo() {
-  const [country, setCountry] = useState<'IN' | 'US' | 'GB'>('IN');
   const [areaCode, setAreaCode] = useState('80');
   const [copiedNum, setCopiedNum] = useState<string | null>(null);
 
   const activeNumbers =
     REAL_CARRIER_NUMBERS[areaCode] || [
       {
-        number: country === 'IN' ? `+91 ${areaCode || '80'} 4567 8901` : `+1 (${areaCode || '415'}) 555-0199`,
-        region: country === 'IN' ? 'India Metro' : 'United States',
+        number: `+91 ${areaCode || '80'} 4567 8901`,
+        region: 'India Metro',
         features: 'Voice & SMS',
       },
       {
-        number: country === 'IN' ? `+91 ${areaCode || '80'} 6123 4499` : `+1 (${areaCode || '415'}) 842-1102`,
-        region: country === 'IN' ? 'India Metro' : 'United States',
+        number: `+91 ${areaCode || '80'} 6123 4499`,
+        region: 'India Metro',
         features: 'Voice & SMS',
       },
     ];
@@ -66,13 +65,13 @@ export function NumberSearchDemo() {
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold mb-3">
             <Signal className="w-3.5 h-3.5" />
-            <span>Tier-1 Indian &amp; Global Carrier Inventory</span>
+            <span>Tier-1 Indian Carrier Inventory</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
             Search &amp; Bind Telecom Numbers
           </h2>
           <p className="text-sm sm:text-base text-neutral-400 mt-3 font-normal">
-            Instant SIP trunk binding with automated inbound AI voice webhooks across India (+91) and globally.
+            Instant SIP trunk binding with automated inbound AI voice webhooks across Indian telecom circles (+91).
           </p>
         </div>
 
@@ -84,17 +83,11 @@ export function NumberSearchDemo() {
               <label className="block text-xs font-medium text-neutral-300 mb-1.5">Country</label>
               <div className="relative">
                 <select
-                  value={country}
-                  onChange={(e) => {
-                    const c = e.target.value as 'IN' | 'US' | 'GB';
-                    setCountry(c);
-                    setAreaCode(c === 'IN' ? '80' : c === 'US' ? '415' : '20');
-                  }}
-                  className="w-full bg-neutral-900/90 border border-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500/50 transition cursor-pointer appearance-none"
+                  disabled
+                  value="IN"
+                  className="w-full bg-neutral-900/90 border border-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none appearance-none cursor-default opacity-90"
                 >
                   <option value="IN">🇮🇳 India (+91)</option>
-                  <option value="US">🇺🇸 United States (+1)</option>
-                  <option value="GB">🇬🇧 United Kingdom (+44)</option>
                 </select>
                 <Globe className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -102,12 +95,12 @@ export function NumberSearchDemo() {
 
             <div>
               <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-                {country === 'IN' ? 'STD / Mobile Code (e.g. 80, 11, 22, 40, 98, 99)' : 'Area Code (e.g. 415, 212, 20)'}
+                STD / Mobile Code (e.g. 80, 11, 22, 40, 98, 99)
               </label>
               <input
                 type="text"
                 maxLength={4}
-                placeholder={country === 'IN' ? '80' : '415'}
+                placeholder="80"
                 value={areaCode}
                 onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
                 className="w-full bg-neutral-900/90 border border-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500/50 transition font-mono"
@@ -116,36 +109,34 @@ export function NumberSearchDemo() {
           </div>
 
           {/* Quick city selectors for India */}
-          {country === 'IN' && (
-            <div className="flex flex-wrap items-center gap-2 mb-6 text-xs">
-              <span className="text-neutral-400 font-semibold uppercase tracking-wider text-[11px]">Popular Indian Hubs:</span>
-              {[
-                { code: '80', name: 'Bengaluru' },
-                { code: '11', name: 'Delhi NCR' },
-                { code: '22', name: 'Mumbai' },
-                { code: '40', name: 'Hyderabad' },
-                { code: '98', name: 'Mobile Direct' },
-              ].map((c) => (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => setAreaCode(c.code)}
-                  className={`px-3 py-1 rounded-lg border font-mono transition-colors ${
-                    areaCode === c.code
-                      ? 'bg-pink-500/20 text-pink-300 border-pink-500/40'
-                      : 'bg-white/[0.03] text-neutral-300 border-white/[0.08] hover:text-white'
-                  }`}
-                >
-                  {c.name} ({c.code})
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2 mb-6 text-xs">
+            <span className="text-neutral-400 font-semibold uppercase tracking-wider text-[11px]">Popular Indian Hubs:</span>
+            {[
+              { code: '80', name: 'Bengaluru' },
+              { code: '11', name: 'Delhi NCR' },
+              { code: '22', name: 'Mumbai' },
+              { code: '40', name: 'Hyderabad' },
+              { code: '98', name: 'Mobile Direct' },
+            ].map((c) => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => setAreaCode(c.code)}
+                className={`px-3 py-1 rounded-lg border font-mono transition-colors ${
+                  areaCode === c.code
+                    ? 'bg-pink-500/20 text-pink-300 border-pink-500/40'
+                    : 'bg-white/[0.03] text-neutral-300 border-white/[0.08] hover:text-white'
+                }`}
+              >
+                {c.name} ({c.code})
+              </button>
+            ))}
+          </div>
 
           {/* Available Numbers List */}
           <div className="space-y-3">
             <div className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 flex items-center justify-between">
-              <span>Available Indian &amp; Global Carrier Inventory</span>
+              <span>Available Indian Carrier Inventory</span>
               <span className="text-pink-400">Status: Real-Time Ready</span>
             </div>
 

@@ -94,7 +94,7 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
             </div>
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight">Provision Phone Number</h2>
-              <p className="text-xs text-neutral-400">Search instant Indian (+91) & Global carrier numbers and attach to agents</p>
+              <p className="text-xs text-neutral-400">Search instant Indian (+91) telecom carrier numbers and attach to agents</p>
             </div>
           </div>
           <button
@@ -117,29 +117,22 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-neutral-400">Country</label>
               <select
-                value={country}
-                onChange={(e) => {
-                  const c = e.target.value;
-                  setCountry(c);
-                  setAreaCode(c === 'IN' ? '80' : c === 'US' ? '415' : c === 'GB' ? '20' : '416');
-                }}
-                className="w-full h-9 px-3 rounded-md bg-white/[0.04] border border-white/[0.1] text-xs text-white focus:outline-none focus:border-emerald-500/50 cursor-pointer"
+                disabled
+                value="IN"
+                className="w-full h-9 px-3 rounded-md bg-white/[0.04] border border-white/[0.1] text-xs text-white focus:outline-none cursor-default opacity-90"
               >
                 <option value="IN">🇮🇳 India (+91)</option>
-                <option value="US">🇺🇸 United States (+1)</option>
-                <option value="GB">🇬🇧 United Kingdom (+44)</option>
-                <option value="CA">🇨🇦 Canada (+1)</option>
               </select>
             </div>
 
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-neutral-400">
-                {country === 'IN' ? 'STD / Mobile Code (e.g. 80, 11, 22, 98)' : 'Area Code'}
+                STD / Mobile Code (e.g. 80, 11, 22, 98)
               </label>
               <Input
                 value={areaCode}
-                onChange={(e) => setAreaCode(e.target.value)}
-                placeholder={country === 'IN' ? '80' : '415'}
+                onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="80"
                 className="h-9 text-xs font-mono"
                 required
               />
@@ -157,25 +150,23 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
             </div>
           </div>
 
-          {country === 'IN' && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold mr-1">Quick Select:</span>
-              {INDIAN_POPULAR_CODES.map((c) => (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => setAreaCode(c.code)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors ${
-                    areaCode === c.code
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                      : 'bg-white/[0.02] text-neutral-400 border-white/[0.06] hover:text-white'
-                  }`}
-                >
-                  {c.name} ({c.code})
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold mr-1">Quick Select:</span>
+            {INDIAN_POPULAR_CODES.map((c) => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => setAreaCode(c.code)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors ${
+                  areaCode === c.code
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    : 'bg-white/[0.02] text-neutral-400 border-white/[0.06] hover:text-white'
+                }`}
+              >
+                {c.name} ({c.code})
+              </button>
+            ))}
+          </div>
         </form>
 
         {/* Search Results List */}
