@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button, Card, Badge, EmptyState, CardSkeleton } from '@talkie/ui';
 import {
   Bot,
@@ -32,6 +33,7 @@ interface Agent {
 }
 
 export default function AgentsPage() {
+  const router = useRouter();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -199,7 +201,7 @@ export default function AgentsPage() {
             !searchQuery && statusFilter === 'all'
               ? {
                   label: 'Create First Agent',
-                  onClick: () => (window.location.href = '/dashboard/agents/new'),
+                  onClick: () => router.push('/dashboard/agents/new'),
                   icon: <Plus className="w-3.5 h-3.5" />,
                 }
               : undefined

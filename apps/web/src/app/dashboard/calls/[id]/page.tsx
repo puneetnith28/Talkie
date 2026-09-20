@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, Badge, Button, TableSkeleton, EmptyState } from '@talkie/ui';
 import {
   ChevronLeft,
@@ -71,6 +72,7 @@ export default function CallDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const { id: callId } = use(params);
   const [call, setCall] = useState<CallDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -239,7 +241,7 @@ export default function CallDetailPage({
             action={{
               label: 'Return to Call Logs',
               onClick: () => {
-                window.location.href = '/dashboard/calls';
+                router.push('/dashboard/calls');
               },
             }}
           />
