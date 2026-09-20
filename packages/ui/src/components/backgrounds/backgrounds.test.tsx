@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import { GridBackground, PageBackground, DotBackground } from './index';
+import { GridBackground, PageBackground, DotBackground, GlowBackground, SectionBackdrop } from './index';
 
 describe('Background Components', () => {
   describe('GridBackground', () => {
@@ -39,6 +39,33 @@ describe('Background Components', () => {
       expect(html).toContain('background-size:32px 32px');
       expect(html).toContain('pointer-events-none');
       expect(html).toContain('rgba(38, 182, 90, 0.35)');
+    });
+  });
+
+  describe('GlowBackground', () => {
+    it('renders ambient glow with custom size and blur', () => {
+      const html = renderToString(<GlowBackground position="top-right" variant="cyan" size={700} blur={150} />);
+      expect(html).toContain('width:700px');
+      expect(html).toContain('height:700px');
+      expect(html).toContain('blur(150px)');
+      expect(html).toContain('-top-40 -right-40');
+    });
+  });
+
+  describe('SectionBackdrop', () => {
+    it('composes multiple layers into single backdrop', () => {
+      const html = renderToString(
+        <SectionBackdrop
+          gradient="radial"
+          grid={{ variant: 'glow' }}
+          dots={{ variant: 'subtle' }}
+          glow={{ variant: 'primary', position: 'top-center' }}
+          noise
+        />
+      );
+      expect(html).toContain('pointer-events-none');
+      expect(html).toContain('mix-blend-overlay');
+      expect(html).toContain('bg-[radial-gradient');
     });
   });
 });
