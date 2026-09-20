@@ -43,9 +43,10 @@ interface SidebarProps {
   onClose?: () => void;
   className?: string;
   showCloseButton?: boolean;
+  isDemoMode?: boolean;
 }
 
-export function Sidebar({ onClose, className, showCloseButton = false }: SidebarProps) {
+export function Sidebar({ onClose, className, showCloseButton = false, isDemoMode = true }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -136,8 +137,15 @@ export function Sidebar({ onClose, className, showCloseButton = false }: Sidebar
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-mono text-neutral-300">Live Voice Ready</span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-neutral-400 font-mono">
-            Demo Mode
+          <span
+            className={cn(
+              'text-[10px] px-1.5 py-0.5 rounded font-mono',
+              isDemoMode
+                ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+                : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+            )}
+          >
+            {isDemoMode ? 'Demo Mode' : 'Clerk Active'}
           </span>
         </div>
       </div>

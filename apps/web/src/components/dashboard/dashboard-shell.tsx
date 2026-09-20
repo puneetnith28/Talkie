@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
+import { DemoModeAlert } from './demo-mode-alert';
 import { Button } from '@talkie/ui';
-import { Terminal, Menu, ShieldAlert } from 'lucide-react';
+import { Terminal, Menu } from 'lucide-react';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -91,7 +92,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     <div className="flex h-screen bg-[#08090b] text-white overflow-hidden font-sans">
       {/* Desktop Sidebar (visible on md+) */}
       <div className="hidden md:flex h-full flex-shrink-0">
-        <Sidebar />
+        <Sidebar isDemoMode={session.isDemoMode} />
       </div>
 
       {/* Mobile Drawer (visible on < md when open) */}
@@ -109,6 +110,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
             <Sidebar
               onClose={() => setMobileDrawerOpen(false)}
               showCloseButton={true}
+              isDemoMode={session.isDemoMode}
               className="w-full h-full shadow-2xl"
             />
           </div>
@@ -117,6 +119,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Demo Mode Alert Banner */}
+        <DemoModeAlert />
+
         {/* Top Header Navbar */}
         <header className="h-16 border-b border-white/[0.08] bg-[#0a0c10]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-10 flex-shrink-0">
           <div className="flex items-center gap-3">
