@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, Terminal, Cpu, Phone, Radio, MessageSquare } from 'lucide-react';
+import { GridBackground, GlowBackground } from '@talkie/ui';
 
 export function MarketingHowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
@@ -81,18 +82,23 @@ await talkie.messages.send({
   };
 
   return (
-    <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="text-center max-w-2xl mx-auto mb-16">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-          Carrier-Grade Architecture
-        </h2>
-        <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-          How Talkie Powers Autonomous Voice
-        </h3>
-        <p className="text-sm text-zinc-400 mt-3">
-          Four simple steps to bring interactive voice calling and omnichannel SMS into your agent workflows.
-        </p>
-      </div>
+    <section id="how-it-works" className="relative py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-sans overflow-hidden">
+      {/* Architecture Technical Grid System */}
+      <GridBackground size={32} variant="default" mask="radial" opacity={0.4} />
+      <GlowBackground position="center" variant="primary" size={650} blur={150} opacity={0.12} />
+      
+      <div className="relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+            Carrier-Grade Architecture
+          </h2>
+          <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            How Talkie Powers Autonomous Voice
+          </h3>
+          <p className="text-sm text-zinc-400 mt-3">
+            Four simple steps to bring interactive voice calling and omnichannel SMS into your agent workflows.
+          </p>
+        </div>
 
       <div
         className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
@@ -193,6 +199,7 @@ await talkie.messages.send({
           </div>
         </div>
       </div>
-    </section>
-  );
+    </div>
+  </section>
+);
 }

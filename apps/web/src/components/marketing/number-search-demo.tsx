@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Phone, Check, ArrowRight } from 'lucide-react';
+import { GridBackground, GlowBackground } from '@talkie/ui';
 
 export function NumberSearchDemo() {
   const [country, setCountry] = useState('US');
@@ -22,7 +23,10 @@ export function NumberSearchDemo() {
   };
 
   return (
-    <section id="features" className="py-24 bg-zinc-950/60 border-t border-zinc-800/80 font-sans">
+    <section id="features" className="relative py-24 bg-zinc-950/60 border-t border-zinc-800/80 font-sans overflow-hidden">
+      {/* Telephony Technical Grid System */}
+      <GridBackground size={40} variant="telephony" mask="radial" opacity={0.75} />
+      <GlowBackground position="top-right" variant="cyan" size={600} blur={160} opacity={0.16} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
