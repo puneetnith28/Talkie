@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #08090b;
+    --foreground: #ffffff;
+    --card: #0f1115;
+    --card-foreground: #ffffff;
+    --primary: #10b969;
+    --primary-foreground: #ffffff;
+    --muted: #181b20;
+    --muted-foreground: #8a8f98;
+    --border: rgba(255, 255, 255, 0.08);
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

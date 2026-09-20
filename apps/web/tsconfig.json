@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@talkie/types": ["../../packages/types/src"],
+      "@talkie/types/*": ["../../packages/types/src/*"],
+      "@talkie/auth": ["../../packages/auth/src"],
+      "@talkie/auth/*": ["../../packages/auth/src/*"],
+      "@talkie/config": ["../../packages/config/src"],
+      "@talkie/config/*": ["../../packages/config/src/*"],
+      "@talkie/ui": ["../../packages/ui/src"],
+      "@talkie/ui/*": ["../../packages/ui/src/*"],
+      "@talkie/database": ["../../packages/database/src"],
+      "@talkie/database/*": ["../../packages/database/src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
