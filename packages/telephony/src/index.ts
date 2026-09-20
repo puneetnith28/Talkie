@@ -5,3 +5,4 @@ export * from './messaging-interface';
 export * from './mock-messaging';
 export * from './message-delivery';
 export * from './production-provider';
+export * from './whatsapp-provider';
