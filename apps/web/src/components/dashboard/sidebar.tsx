@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -17,6 +17,7 @@ import {
   Settings,
   X,
   LogOut,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { cn } from '@talkie/ui';
 import { useClerk, useUser } from '@clerk/nextjs';
@@ -61,9 +62,32 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
   const { signOut } = useClerk();
   const { user: clerkUser } = useUser();
 
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const userName = clerkUser?.fullName || clerkUser?.firstName || 'Puneet Yadav';
-  const userEmail = clerkUser?.primaryEmailAddress?.emailAddress || 'puneet@talkie.ai';
+  const userEmail = clerkUser?.primaryEmailAddress?.emailAddress || 'puneetnith28@gmail.com';
   const userInitial = (userName[0] || 'P').toUpperCase();
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setUserMenuOpen(false);
+  }, [pathname]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   const handleSignOut = async () => {
     try {
@@ -167,51 +191,112 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
         </div>
       </nav>
 
-      {/* Workspace & User Profile Footer */}
-      <div className="p-3.5 border-t border-white/[0.08] bg-white/[0.01] flex-shrink-0 space-y-2.5">
-        {/* User Card with Name & Email */}
-        <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-          {clerkUser?.imageUrl ? (
-            <img
-              src={clerkUser.imageUrl}
-              alt={userName}
-              className="w-8 h-8 rounded-lg object-cover border border-emerald-500/30 shrink-0"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500/25 to-emerald-400/10 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-300 shrink-0 shadow-sm">
-              {userInitial}
+      {/* Workspace & User Profile Footer with Popover Dropdown */}
+      <div className="relative p-3 border-t border-white/[0.08] bg-[#0c0e12]/80 flex-shrink-0" ref={menuRef}>
+        {/* Dropdown Popover */}
+        {userMenuOpen && (
+          <div className="absolute bottom-full left-3 right-3 mb-2 p-2 rounded-2xl bg-[#0e1117] border border-white/[0.12] shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-150 space-y-2">
+            {/* Header info with name & email */}
+            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-2.5">
+              {clerkUser?.imageUrl ? (
+                <img
+                  src={clerkUser.imageUrl}
+                  alt={userName}
+                  className="w-9 h-9 rounded-xl object-cover border border-emerald-500/30 shrink-0"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500/25 to-emerald-400/10 border border-emerald-500/30 flex items-center justify-center text-sm font-bold text-emerald-300 shrink-0 shadow-sm">
+                  {userInitial}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-white truncate leading-tight">{userName}</div>
+                <div className="text-[10px] text-neutral-400 font-mono truncate leading-tight mt-0.5">{userEmail}</div>
+              </div>
             </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-white truncate leading-tight">{userName}</div>
-            <div className="text-[10px] text-neutral-400 font-mono truncate leading-tight mt-0.5">{userEmail}</div>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between text-xs text-neutral-400 px-0.5">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono text-[11px] text-neutral-300">Live Voice Ready</span>
-          </div>
-          <span
-            className={cn(
-              'text-[10px] px-1.5 py-0.5 rounded font-mono',
-              isDemoMode
-                ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
-                : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
-            )}
-          >
-            {isDemoMode ? 'Demo Mode' : 'Clerk Active'}
-          </span>
-        </div>
+            {/* Status pill */}
+            <div className="px-2 py-0.5 flex items-center justify-between text-[11px] text-neutral-400">
+              <span className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Voice Ready
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-[9px] font-mono text-neutral-300">
+                {isDemoMode ? 'Demo Mode' : 'Clerk Active'}
+              </span>
+            </div>
 
+            <div className="h-px bg-white/[0.06] my-1" />
+
+            {/* Quick Links */}
+            <div className="space-y-0.5">
+              <Link
+                href="/dashboard/settings"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  if (onClose) onClose();
+                }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.05] transition"
+              >
+                <Settings className="w-3.5 h-3.5 text-neutral-400" />
+                <span>Account Settings</span>
+              </Link>
+              <Link
+                href="/dashboard/usage"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  if (onClose) onClose();
+                }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.05] transition"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-neutral-400" />
+                <span>Usage & Billing</span>
+              </Link>
+            </div>
+
+            <div className="h-px bg-white/[0.06] my-1" />
+
+            {/* Sign Out Button */}
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        )}
+
+        {/* Normal State Trigger: Shows Avatar, Name only, and Chevrons */}
         <button
           type="button"
-          onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs font-medium text-neutral-400 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/10 transition cursor-pointer"
+          onClick={() => setUserMenuOpen((prev) => !prev)}
+          className={cn(
+            'w-full flex items-center justify-between p-2 rounded-xl border transition-all cursor-pointer group',
+            userMenuOpen
+              ? 'bg-white/[0.08] border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+              : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12]'
+          )}
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {clerkUser?.imageUrl ? (
+              <img
+                src={clerkUser.imageUrl}
+                alt={userName}
+                className="w-7 h-7 rounded-lg object-cover border border-emerald-500/30 shrink-0"
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-emerald-500/25 to-emerald-400/10 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-300 shrink-0">
+                {userInitial}
+              </div>
+            )}
+            <span className="text-xs font-semibold text-white truncate max-w-[130px] group-hover:text-emerald-300 transition-colors">
+              {userName}
+            </span>
+          </div>
+
+          <ChevronsUpDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-200 shrink-0 ml-1" />
         </button>
       </div>
     </aside>

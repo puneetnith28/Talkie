@@ -183,50 +183,43 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </Button>
             </Link>
 
-            {/* User Profile Badge & Name */}
-            <div className="flex items-center gap-2.5 px-2.5 py-1 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] transition">
-              {!session.isDemoMode ? (
-                <div className="flex items-center">
-                  <UserButton
-                    appearance={{
-                      elements: {
-                        userButtonAvatarBox:
-                          'w-7 h-7 rounded-full border border-white/[0.1] hover:border-emerald-500/40 transition',
-                        userButtonPopoverCard:
-                          'bg-[#0a0c10] border border-white/[0.1] shadow-2xl text-white',
-                        userButtonPopoverActionButton:
-                          'text-neutral-300 hover:text-white hover:bg-white/[0.05]',
-                        userButtonPopoverActionButtonText:
-                          'text-xs text-neutral-300 font-medium',
-                      },
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500/30 to-emerald-400/10 border border-emerald-500/30 flex items-center justify-center text-[11px] font-bold text-emerald-300">
-                  {session.userInitials}
-                </div>
-              )}
-
-              <div className="hidden sm:flex flex-col text-left pr-1">
-                <span className="text-xs font-semibold text-white leading-tight truncate max-w-[130px]">
+            {/* User Profile Pill */}
+            {!session.isDemoMode ? (
+              <div className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-emerald-500/30 transition">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox:
+                        'w-7 h-7 rounded-full border border-white/[0.1] hover:border-emerald-500/40 transition',
+                      userButtonPopoverCard:
+                        'bg-[#0a0c10] border border-white/[0.1] shadow-2xl text-white',
+                      userButtonPopoverActionButton:
+                        'text-neutral-300 hover:text-white hover:bg-white/[0.05]',
+                      userButtonPopoverActionButtonText:
+                        'text-xs text-neutral-300 font-medium',
+                    },
+                  }}
+                />
+                <span className="hidden sm:inline text-xs font-semibold text-white truncate max-w-[130px]">
                   {clerkUser?.fullName || clerkUser?.firstName || session.userName}
                 </span>
-                <span className="text-[10px] text-neutral-400 font-mono leading-tight truncate max-w-[130px]">
-                  {clerkUser?.primaryEmailAddress?.emailAddress || session.userEmail || 'Active'}
-                </span>
               </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              title="Sign Out"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-red-400 hover:bg-red-500/10 border border-white/[0.06] hover:border-red-500/30 transition cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Sign Out</span>
-            </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-red-500/30 hover:bg-red-500/10 text-neutral-300 hover:text-red-400 transition cursor-pointer"
+                title="Sign Out"
+              >
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-500/30 to-emerald-400/10 border border-emerald-500/30 flex items-center justify-center text-[10px] font-bold text-emerald-300">
+                  {session.userInitials}
+                </div>
+                <span className="hidden sm:inline text-xs font-semibold truncate max-w-[120px]">
+                  {session.userName}
+                </span>
+                <LogOut className="w-3.5 h-3.5 opacity-70 ml-0.5" />
+              </button>
+            )}
           </div>
         </header>
 
