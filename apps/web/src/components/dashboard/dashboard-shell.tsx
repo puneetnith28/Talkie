@@ -36,8 +36,15 @@ export function DashboardShell({ children }: DashboardShellProps) {
   useEffect(() => {
     let isMounted = true;
     fetch('/api/v1/auth/me')
-      .then((res) => res.json())
       .then((res) => {
+        if (res.status === 401) {
+          router.push('/sign-in');
+          return null;
+        }
+        return res.json();
+      })
+      .then((res) => {
+        if (!res) return;
         if (isMounted && res.success && res.data) {
           const ws = res.data.workspace;
           const user = res.data.user;
@@ -56,6 +63,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
             userEmail: user?.email || 'alex@talkie.ai',
             isDemoMode: res.data.isDemoMode ?? true,
           });
+        } else if (!res.success && res.error === 'Unauthorized') {
+          router.push('/sign-in');
         }
       })
       .catch(() => {});
