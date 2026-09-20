@@ -6,3 +6,4 @@ export * from './mock-messaging';
 export * from './message-delivery';
 export * from './production-provider';
 export * from './whatsapp-provider';
+export * from './telegram-provider';
