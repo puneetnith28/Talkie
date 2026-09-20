@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WebhookService } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const createWebhookSchema = z.object({
@@ -10,7 +11,8 @@ const createWebhookSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const webhooks = await WebhookService.listWebhooks(workspaceId);
 
     return NextResponse.json({
@@ -28,7 +30,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const body = await req.json();
 
     const parsed = createWebhookSchema.safeParse(body);

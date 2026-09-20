@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WebhookService } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const updateWebhookSchema = z.object({
@@ -14,7 +15,8 @@ export async function GET(
 ) {
   try {
     const { id: webhookId } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     const webhook = await WebhookService.getWebhookById(workspaceId, webhookId);
     if (!webhook) {
@@ -39,7 +41,8 @@ export async function PATCH(
 ) {
   try {
     const { id: webhookId } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const body = await req.json();
 
     const parsed = updateWebhookSchema.safeParse(body);
@@ -66,7 +69,8 @@ export async function DELETE(
 ) {
   try {
     const { id: webhookId } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     await WebhookService.deleteWebhook(workspaceId, webhookId);
     return NextResponse.json({ success: true });

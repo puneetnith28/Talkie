@@ -69,6 +69,10 @@ export class WebhookService {
     return prisma.webhook.findMany({
       where: { workspaceId },
       include: {
+        deliveries: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+        },
         _count: {
           select: { deliveries: true },
         },

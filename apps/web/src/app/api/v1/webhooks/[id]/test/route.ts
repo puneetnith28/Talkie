@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WebhookService } from '@talkie/database';
 import { WebhookDispatcher, WebhookEventBuilder } from '@talkie/webhook-engine';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 
 const dispatcher = new WebhookDispatcher();
 
@@ -10,7 +11,8 @@ export async function POST(
 ) {
   try {
     const { id: webhookId } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     const webhook = await WebhookService.getWebhookById(workspaceId, webhookId);
     if (!webhook) {
