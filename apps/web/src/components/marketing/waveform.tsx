@@ -1,27 +1,31 @@
+'use client';
+
 import React from 'react';
 
-export function AudioWaveform({ isPlaying }: { isPlaying: boolean }) {
-  const bars = [
-    { height: '14px', delay: '0.1s' },
-    { height: '24px', delay: '0.3s' },
-    { height: '18px', delay: '0.15s' },
-    { height: '28px', delay: '0.4s' },
-    { height: '12px', delay: '0.25s' },
-    { height: '26px', delay: '0.35s' },
-    { height: '16px', delay: '0.1s' },
-  ];
+export function AudioWaveform({
+  isPlaying,
+  speaker = 'agent',
+}: {
+  isPlaying: boolean;
+  speaker?: 'agent' | 'user';
+}) {
+  const barHeights = [12, 22, 16, 28, 14, 26, 18, 24, 15, 20];
 
   return (
-    <div className="flex items-center gap-1 h-8 px-2">
-      {bars.map((bar, i) => (
+    <div className="flex items-center gap-1 h-8 px-2 py-1 rounded-lg bg-zinc-950/60 border border-zinc-800/60">
+      {barHeights.map((h, i) => (
         <span
           key={i}
           style={{
-            height: isPlaying ? undefined : '6px',
-            animationDelay: bar.delay,
+            height: isPlaying ? `${Math.max(6, h + ((i % 3) * 4))}px` : '4px',
+            animationDuration: `${0.4 + (i * 0.08)}s`,
           }}
-          className={`w-1 rounded-full bg-blue-400 transition-all duration-300 ${
-            isPlaying ? 'animate-pulse' : 'opacity-40'
+          className={`w-1 rounded-full transition-all duration-200 ${
+            isPlaying
+              ? speaker === 'agent'
+                ? 'bg-blue-400 animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.8)]'
+                : 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+              : 'bg-zinc-700 opacity-40'
           }`}
         />
       ))}
