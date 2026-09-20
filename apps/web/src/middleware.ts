@@ -1,20 +1,22 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/settings(.*)',
 ]);
 
-const hasClerkKey = Boolean(
+const hasClerkKeys = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-  !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('your_clerk')
+  !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('your_clerk') &&
+  process.env.CLERK_SECRET_KEY &&
+  !process.env.CLERK_SECRET_KEY.includes('your_clerk')
 );
 
-export default clerkMiddleware(async (auth, request) => {
-  const requestId =
-    request.headers.get('x-request-id') ||
-    `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+// Fallback basic middleware when Clerk keys are not configured (Demo / Test mode)
+function fallbackMiddleware(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') || `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
   // Handle preflight CORS for API routes
   if (request.method === 'OPTIONS' && request.nextUrl.pathname.startsWith('/api/')) {
@@ -23,16 +25,10 @@ export default clerkMiddleware(async (auth, request) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers':
-          'Content-Type, Authorization, X-Workspace-Id, X-Request-Id, X-Talkie-Signature, X-Talkie-Timestamp, X-Talkie-Event',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Workspace-Id, X-Request-Id, X-Talkie-Signature, X-Talkie-Timestamp, X-Talkie-Event',
         'Access-Control-Max-Age': '86400',
       },
     });
-  }
-
-  // Protect /dashboard and /settings routes if Clerk credentials are configured
-  if (hasClerkKey && isProtectedRoute(request)) {
-    await auth.protect();
   }
 
   const response = NextResponse.next();
@@ -43,7 +39,37 @@ export default clerkMiddleware(async (auth, request) => {
   }
 
   return response;
-});
+}
+
+export default hasClerkKeys
+  ? clerkMiddleware(async (auth, req) => {
+      const requestId = req.headers.get('x-request-id') || `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      // Handle preflight CORS
+      if (req.method === 'OPTIONS' && req.nextUrl.pathname.startsWith('/api/')) {
+        return new NextResponse(null, {
+          status: 204,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Workspace-Id, X-Request-Id, X-Talkie-Signature, X-Talkie-Timestamp, X-Talkie-Event',
+            'Access-Control-Max-Age': '86400',
+          },
+        });
+      }
+
+      if (isProtectedRoute(req)) {
+        await auth.protect();
+      }
+
+      const response = NextResponse.next();
+      response.headers.set('X-Request-Id', requestId);
+      if (req.nextUrl.pathname.startsWith('/api/')) {
+        response.headers.set('Access-Control-Allow-Origin', '*');
+      }
+      return response;
+    })
+  : fallbackMiddleware;
 
 export const config = {
   matcher: [
