@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  talkie-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: talkie-web-dev
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=file:/app/packages/database/prisma/dev.db
+      - NEXTAUTH_SECRET=talkie-dev-secret-super-secure-key-32-chars
+      - NEXTAUTH_URL=http://localhost:3000
+      - TALKIE_DEMO_MODE=true
+    volumes:
+      - ./packages/database/prisma:/app/packages/database/prisma
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
