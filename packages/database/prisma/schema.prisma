@@ -38,6 +38,7 @@ model Workspace {
   calls         Call[]
   conversations Conversation[]
   contacts      Contact[]
+  channelAccounts ChannelAccount[]
   webhooks      Webhook[]
   usageRecords  UsageRecord[]
   auditLogs     AuditLog[]
@@ -181,25 +182,28 @@ model Transcript {
 }
 
 model Conversation {
-  id               String    @id @default(cuid())
+  id               String          @id @default(cuid())
   workspaceId      String
   agentId          String?
   phoneNumberId    String?
+  channelAccountId String?
   contactId        String?
-  channel          String    @default("sms") // sms | mms | imessage | whatsapp
+  channel          String          @default("sms") // sms | mms | imessage | whatsapp | telegram
   externalThreadId String?
-  lastMessageAt    DateTime  @default(now())
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  lastMessageAt    DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
-  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  agent            Agent?    @relation(fields: [agentId], references: [id], onDelete: SetNull)
-  phoneNumber      PhoneNumber? @relation(fields: [phoneNumberId], references: [id], onDelete: SetNull)
-  contact          Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  agent            Agent?          @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  phoneNumber      PhoneNumber?    @relation(fields: [phoneNumberId], references: [id], onDelete: SetNull)
+  channelAccount   ChannelAccount? @relation(fields: [channelAccountId], references: [id], onDelete: SetNull)
+  contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
   messages         Message[]
 
   @@index([workspaceId])
   @@index([phoneNumberId])
+  @@index([channelAccountId])
   @@index([contactId])
   @@index([lastMessageAt])
   @@map("conversations")
@@ -210,11 +214,13 @@ model Message {
   conversationId    String
   providerMessageId String?
   direction         String       // inbound | outbound
+  channel           String       @default("sms") // sms | mms | imessage | whatsapp | telegram
   senderNumber      String
   recipientNumber   String
   body              String
   mediaJson         String?      @default("[]")
   status            String       @default("sent") // queued | sending | sent | delivered | failed
+  metadataJson      String?
   sentAt            DateTime     @default(now())
   createdAt         DateTime     @default(now())
 
@@ -227,22 +233,51 @@ model Message {
 }
 
 model Contact {
-  id            String         @id @default(cuid())
-  workspaceId   String
-  name          String
-  phoneNumber   String
-  email         String?
-  company       String?
-  notes         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  workspaceId      String
+  name             String
+  phoneNumber      String
+  email            String?
+  whatsappId       String?
+  telegramId       String?
+  telegramUsername String?
+  avatarUrl        String?
+  company          String?
+  notes            String?
+  identitiesJson   String?        @default("[]")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
-  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  conversations Conversation[]
+  workspace        Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversations    Conversation[]
 
   @@index([workspaceId])
   @@index([phoneNumber])
+  @@index([whatsappId])
+  @@index([telegramId])
   @@map("contacts")
+}
+
+model ChannelAccount {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  type            String         // whatsapp | telegram | twilio | telnyx
+  name            String
+  identifier      String         // e.g. WhatsApp phone number ID or Telegram bot username
+  credentialsJson String         // Encrypted access token, api secret, webhook verify token
+  status          String         @default("active") // active | disconnected | error
+  webhookUrl      String?
+  metadataJson    String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversations   Conversation[]
+
+  @@unique([workspaceId, type, identifier])
+  @@index([workspaceId])
+  @@index([type])
+  @@map("channel_accounts")
 }
 
 model Webhook {

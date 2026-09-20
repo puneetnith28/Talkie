@@ -9,3 +9,4 @@ export * from './webhook.service';
 export * from './usage.service';
 export * from './audit.service';
 export * from './idempotency.service';
+export * from './channel-account.service';

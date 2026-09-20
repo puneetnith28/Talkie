@@ -3,6 +3,7 @@ import type { ChannelType, MessageDirection, MessageStatus } from '@talkie/types
 
 export interface FindOrCreateConversationInput {
   phoneNumberId?: string;
+  channelAccountId?: string;
   contactId?: string;
   agentId?: string;
   channel?: ChannelType;
@@ -12,6 +13,7 @@ export interface FindOrCreateConversationInput {
 export interface CreateMessageInput {
   conversationId?: string;
   phoneNumberId?: string;
+  channelAccountId?: string;
   contactId?: string;
   agentId?: string;
   channel?: ChannelType;
@@ -22,6 +24,7 @@ export interface CreateMessageInput {
   mediaUrls?: string[];
   providerMessageId?: string;
   status?: MessageStatus;
+  metadata?: Record<string, any>;
 }
 
 export class MessageService {
@@ -32,13 +35,14 @@ export class MessageService {
     workspaceId: string,
     input: FindOrCreateConversationInput
   ) {
-    if (input.contactId && input.phoneNumberId) {
+    if (input.contactId) {
       const existing = await prisma.conversation.findFirst({
         where: {
           workspaceId,
           contactId: input.contactId,
-          phoneNumberId: input.phoneNumberId,
           channel: input.channel ?? 'sms',
+          ...(input.phoneNumberId ? { phoneNumberId: input.phoneNumberId } : {}),
+          ...(input.channelAccountId ? { channelAccountId: input.channelAccountId } : {}),
         },
       });
 
@@ -51,6 +55,7 @@ export class MessageService {
       data: {
         workspaceId,
         phoneNumberId: input.phoneNumberId,
+        channelAccountId: input.channelAccountId,
         contactId: input.contactId,
         agentId: input.agentId,
         channel: input.channel ?? 'sms',
@@ -69,6 +74,7 @@ export class MessageService {
     if (!conversationId) {
       const conversation = await this.findOrCreateConversation(workspaceId, {
         phoneNumberId: input.phoneNumberId,
+        channelAccountId: input.channelAccountId,
         contactId: input.contactId,
         agentId: input.agentId,
         channel: input.channel,
@@ -76,17 +82,22 @@ export class MessageService {
       conversationId = conversation.id;
     }
 
+    const metadataJson = input.metadata ? JSON.stringify(input.metadata) : null;
+    const channel = input.channel ?? 'sms';
+
     const message = await prisma.$transaction(async (tx) => {
       const created = await tx.message.create({
         data: {
           conversationId,
           direction: input.direction,
+          channel,
           senderNumber: input.senderNumber,
           recipientNumber: input.recipientNumber,
           body: input.body,
           mediaJson: JSON.stringify(input.mediaUrls ?? []),
           providerMessageId: input.providerMessageId,
           status: input.status ?? 'sent',
+          metadataJson,
           sentAt: new Date(),
         },
       });
@@ -103,7 +114,7 @@ export class MessageService {
   }
 
   /**
-   * List conversation threads for a workspace
+   * List conversation threads for a workspace with channel and agent filters
    */
   static async listConversations(
     workspaceId: string,
@@ -118,13 +129,14 @@ export class MessageService {
     return prisma.conversation.findMany({
       where: {
         workspaceId,
-        ...(options?.channel ? { channel: options.channel } : {}),
+        ...(options?.channel && options.channel !== 'all' ? { channel: options.channel } : {}),
         ...(options?.agentId ? { agentId: options.agentId } : {}),
         ...(options?.contactId ? { contactId: options.contactId } : {}),
       },
       include: {
         contact: true,
         phoneNumber: true,
+        channelAccount: true,
         agent: true,
         messages: {
           take: 1,
@@ -147,18 +159,61 @@ export class MessageService {
   ) {
     const conversation = await prisma.conversation.findFirst({
       where: { id: conversationId, workspaceId },
+      include: {
+        contact: true,
+        phoneNumber: true,
+        channelAccount: true,
+        agent: true,
+      },
     });
 
     if (!conversation) {
       throw new Error(`Conversation not found or access denied: ${conversationId}`);
     }
 
-    return prisma.message.findMany({
+    const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
       take: options?.limit ?? 100,
       skip: options?.offset ?? 0,
     });
+
+    return messages;
+  }
+
+  /**
+   * Get full conversation thread with messages and metadata
+   */
+  static async getConversationWithMessages(
+    workspaceId: string,
+    conversationId: string,
+    options?: { limit?: number; offset?: number }
+  ) {
+    const conversation = await prisma.conversation.findFirst({
+      where: { id: conversationId, workspaceId },
+      include: {
+        contact: true,
+        phoneNumber: true,
+        channelAccount: true,
+        agent: true,
+      },
+    });
+
+    if (!conversation) {
+      throw new Error(`Conversation not found or access denied: ${conversationId}`);
+    }
+
+    const messages = await prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+      take: options?.limit ?? 100,
+      skip: options?.offset ?? 0,
+    });
+
+    return {
+      conversation,
+      messages,
+    };
   }
 
   /**

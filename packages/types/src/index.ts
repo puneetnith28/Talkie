@@ -32,7 +32,16 @@ export type MessageDirection = 'inbound' | 'outbound';
 
 export type MessageStatus = 'queued' | 'sending' | 'sent' | 'delivered' | 'failed';
 
-export type ChannelType = 'sms' | 'mms' | 'imessage' | 'whatsapp';
+export type ChannelType = 'sms' | 'mms' | 'imessage' | 'whatsapp' | 'telegram';
+
+export type ChannelAccountType = 'whatsapp' | 'telegram' | 'twilio' | 'telnyx';
+
+export interface ContactIdentity {
+  type: 'phone' | 'whatsapp' | 'telegram' | 'email';
+  value: string;
+  verified?: boolean;
+  primary?: boolean;
+}
 
 export type WebhookEventName =
   | 'agent.message'
