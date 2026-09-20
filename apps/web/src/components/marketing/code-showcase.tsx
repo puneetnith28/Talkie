@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Copy, Check, Terminal, Code2, Sparkles } from 'lucide-react';
+import { GridBackground, GlowBackground } from '@talkie/ui';
 
 export function CodeShowcase() {
   const [activeTab, setActiveTab] = useState<'ts' | 'py' | 'mcp' | 'curl'>('ts');
@@ -74,18 +75,23 @@ print("Message status:", msg.status)`,
   };
 
   return (
-    <section id="code" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-          Developer-First Integration
-        </h2>
-        <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-          Built for Developers, SDKs & MCP
-        </h3>
-        <p className="text-sm text-zinc-400 mt-2 font-normal">
-          Native TypeScript and Python client packages, full Model Context Protocol server, and standard REST v1 endpoints.
-        </p>
-      </div>
+    <section id="code" className="relative py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-sans overflow-hidden">
+      {/* Terminal Grid Background Overlay */}
+      <GridBackground size={28} variant="telephony" mask="radial" opacity={0.45} />
+      <GlowBackground position="top-right" variant="cyan" size={600} blur={160} opacity={0.15} />
+
+      <div className="relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+            Developer-First Integration
+          </h2>
+          <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            Built for Developers, SDKs & MCP
+          </h3>
+          <p className="text-sm text-zinc-400 mt-2 font-normal">
+            Native TypeScript and Python client packages, full Model Context Protocol server, and standard REST v1 endpoints.
+          </p>
+        </div>
 
       <div className="max-w-4xl mx-auto rounded-3xl bg-zinc-950 border border-zinc-800/90 shadow-2xl overflow-hidden relative backdrop-blur-2xl">
         {/* Subtle top glow highlight */}
@@ -147,6 +153,7 @@ print("Message status:", msg.status)`,
           </pre>
         </div>
       </div>
-    </section>
-  );
+    </div>
+  </section>
+);
 }
