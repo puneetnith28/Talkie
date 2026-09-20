@@ -9,6 +9,7 @@ export interface UserSession {
   workspaceId: string;
   workspaceSlug: string;
   role: WorkspaceRole;
+  isDemoMode?: boolean;
 }
 
 export interface AuthTokenPayload {
@@ -32,6 +33,7 @@ export interface AuthContext {
   apiKey?: ApiKeyContext;
   workspaceId: string;
   isAuthenticated: boolean;
+  isDemoMode?: boolean;
 }
 
 export interface PasswordHashResult {

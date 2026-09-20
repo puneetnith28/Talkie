@@ -40,9 +40,11 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
               workspaceId: membership.workspaceId,
               workspaceSlug: membership.workspace.slug,
               role: (membership.role as WorkspaceRole) || 'owner',
+              isDemoMode: false,
             },
             workspaceId: membership.workspaceId,
             isAuthenticated: true,
+            isDemoMode: false,
           };
         } else if (user) {
           // Provision workspace for user
@@ -58,9 +60,11 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
               workspaceId: synced.workspace.id,
               workspaceSlug: synced.workspace.slug,
               role: (synced.workspace.role as WorkspaceRole) || 'owner',
+              isDemoMode: false,
             },
             workspaceId: synced.workspace.id,
             isAuthenticated: true,
+            isDemoMode: false,
           };
         }
       }
@@ -97,6 +101,7 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
           },
           workspaceId: apiKeyRecord.workspaceId,
           isAuthenticated: true,
+          isDemoMode: false,
         };
       }
     }
@@ -114,9 +119,11 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
           workspaceId: payload.workspaceId,
           workspaceSlug: 'default',
           role: (payload.role as WorkspaceRole) || 'member',
+          isDemoMode: false,
         },
         workspaceId: payload.workspaceId,
         isAuthenticated: true,
+        isDemoMode: false,
       };
     }
   }
@@ -135,9 +142,11 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
           workspaceId: ws.id,
           workspaceSlug: ws.slug,
           role: 'owner',
+          isDemoMode: false,
         },
         workspaceId: ws.id,
         isAuthenticated: true,
+        isDemoMode: false,
       };
     }
   }
@@ -155,15 +164,18 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
         workspaceId: fallbackWorkspace.id,
         workspaceSlug: fallbackWorkspace.slug,
         role: 'owner',
+        isDemoMode: true,
       },
       workspaceId: fallbackWorkspace.id,
       isAuthenticated: true,
+      isDemoMode: true,
     };
   }
 
   return {
     workspaceId: '',
     isAuthenticated: false,
+    isDemoMode: false,
   };
 }
 
