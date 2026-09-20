@@ -11,12 +11,12 @@ interface AgentConfigTabProps {
 }
 
 const VOICES = [
-  { id: 'aura-asteria-en', name: 'Asteria (Female)', accent: 'American', provider: 'Aura', style: 'Warm & Natural' },
-  { id: 'aura-orpheus-en', name: 'Orpheus (Male)', accent: 'American', provider: 'Aura', style: 'Authoritative & Clear' },
-  { id: 'aura-luna-en', name: 'Luna (Female)', accent: 'British', provider: 'Aura', style: 'Sophisticated' },
-  { id: 'alloy', name: 'Alloy (Neutral)', accent: 'American', provider: 'OpenAI', style: 'Friendly & Balanced' },
-  { id: 'echo', name: 'Echo (Male)', accent: 'American', provider: 'OpenAI', style: 'Resonant & Smooth' },
-  { id: 'shimmer', name: 'Shimmer (Female)', accent: 'American', provider: 'OpenAI', style: 'Expressive & Bright' },
+  { id: 'aura-aarav-in', name: 'Aarav (Male)', accent: 'Indian English', provider: 'Aura', style: 'Confident & Crisp' },
+  { id: 'aura-priya-in', name: 'Priya (Female)', accent: 'Indian English', provider: 'Aura', style: 'Warm & Professional' },
+  { id: 'aura-ananya-in', name: 'Ananya (Female)', accent: 'Hindi / Indian English', provider: 'Aura', style: 'Friendly & Engaging' },
+  { id: 'aura-rohan-in', name: 'Rohan (Male)', accent: 'Hindi / Indian English', provider: 'Aura', style: 'Articulate & Calm' },
+  { id: 'aura-aditi-in', name: 'Aditi (Female)', accent: 'Indian English', provider: 'Deepgram', style: 'Natural & Expressive' },
+  { id: 'alloy', name: 'Alloy (Neutral)', accent: 'Global English', provider: 'OpenAI', style: 'Balanced' },
 ];
 
 export function AgentConfigTab({ agent, onUpdate }: AgentConfigTabProps) {

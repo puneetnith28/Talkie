@@ -15,19 +15,19 @@ const DEMO_TURNS: Turn[] = [
   {
     id: '1',
     speaker: 'agent',
-    text: "Apex Logistics AI online. How can I help with your freight dispatch today?",
+    text: "Namaste! Talkie AI Concierge online. How can I assist with your customer dispatch or support today?",
     latencyMs: 240,
   },
   {
     id: '2',
     speaker: 'user',
-    text: "Hi! Need to expedite cargo load #TK-9842 to Dallas terminal.",
+    text: "Hi! Need to expedite package delivery #TK-9842 to our Bengaluru tech park hub.",
   },
   {
     id: '3',
     speaker: 'agent',
-    text: "Load #TK-9842 is assigned to Driver Carlos. Rerouted for priority arrival by 11:30 AM tomorrow.",
-    latencyMs: 310,
+    text: "Shipment #TK-9842 is routed to Courier Rahul. Scheduled for priority delivery by 11:30 AM tomorrow in Whitefield.",
+    latencyMs: 285,
   },
 ];
 
@@ -150,13 +150,13 @@ export function HeroCallDemo() {
           </div>
           <div>
             <div className="text-sm font-bold text-white flex items-center gap-1.5 tracking-tight">
-              Apex Logistics AI
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">
-                Hosted Voice
+              Aarav AI Support
+              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                Hosted Voice (India)
               </span>
             </div>
-            <div className="text-xs text-zinc-400 font-medium">
-              +1 (415) 555-0199 • ElevenLabs Ultra
+            <div className="text-xs text-zinc-400 font-medium font-mono">
+              +91 80 4567 8901 • Indian English &amp; Hindi
             </div>
           </div>
         </div>

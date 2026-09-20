@@ -12,32 +12,32 @@ interface AgentFormProps {
 }
 
 const VOICES = [
-  { id: 'aura-asteria-en', name: 'Asteria (Female)', accent: 'American', provider: 'Aura', style: 'Warm & Natural' },
-  { id: 'aura-orpheus-en', name: 'Orpheus (Male)', accent: 'American', provider: 'Aura', style: 'Authoritative & Clear' },
-  { id: 'aura-luna-en', name: 'Luna (Female)', accent: 'British', provider: 'Aura', style: 'Sophisticated' },
-  { id: 'alloy', name: 'Alloy (Neutral)', accent: 'American', provider: 'OpenAI', style: 'Friendly & Balanced' },
-  { id: 'echo', name: 'Echo (Male)', accent: 'American', provider: 'OpenAI', style: 'Resonant & Smooth' },
-  { id: 'shimmer', name: 'Shimmer (Female)', accent: 'American', provider: 'OpenAI', style: 'Expressive & Bright' },
+  { id: 'aura-aarav-in', name: 'Aarav (Male)', accent: 'Indian English', provider: 'Aura', style: 'Confident & Crisp' },
+  { id: 'aura-priya-in', name: 'Priya (Female)', accent: 'Indian English', provider: 'Aura', style: 'Warm & Professional' },
+  { id: 'aura-ananya-in', name: 'Ananya (Female)', accent: 'Hindi / Indian English', provider: 'Aura', style: 'Friendly & Engaging' },
+  { id: 'aura-rohan-in', name: 'Rohan (Male)', accent: 'Hindi / Indian English', provider: 'Aura', style: 'Articulate & Calm' },
+  { id: 'aura-aditi-in', name: 'Aditi (Female)', accent: 'Indian English', provider: 'Deepgram', style: 'Natural & Expressive' },
+  { id: 'alloy', name: 'Alloy (Neutral)', accent: 'Global English', provider: 'OpenAI', style: 'Balanced' },
 ];
 
 const PROMPT_TEMPLATES = [
   {
-    name: 'Customer Support',
-    greeting: 'Thank you for calling Talkie! How can I assist you with your account today?',
+    name: 'Customer Support (India)',
+    greeting: 'Namaste and welcome to Talkie! How can I assist you with your account today?',
     prompt:
-      'You are a friendly, concise, and expert customer support assistant for a cloud platform. Always verify details gently, answer questions directly, and summarize action items before ending the call.',
+      'You are a polite, concise, and helpful Indian customer support specialist for Talkie. Always address queries clearly in professional Indian English (with natural bilingual Hindi support if requested by the user), verify ticket details, and summarize key points before ending the call.',
   },
   {
-    name: 'Sales SDR Qualifier',
-    greeting: 'Hi there! This is Alex calling from Talkie. Reaching out regarding your interest in AI voice agents.',
+    name: 'Enterprise SDR Qualifier',
+    greeting: 'Namaste! This is Aarav from Talkie calling to follow up on your voice AI infrastructure interest.',
     prompt:
-      'You are an energetic and polite outbound Sales Development Representative. Qualify leads by asking about team size, current telephony provider, and timeline. Aim to schedule a technical walkthrough with our team.',
+      'You are an energetic and professional sales development representative based in India. Qualify enterprise leads by inquiring about daily call volume, telecom carrier preferences (Airtel, Jio, Tata Tele), and deployment timeline. Schedule a technical demonstration with our Bengaluru solutions team.',
   },
   {
-    name: 'Appointment Booking',
-    greeting: 'Hello! I am your automated scheduling concierge. Would you like to book or reschedule an appointment?',
+    name: 'Appointment Concierge',
+    greeting: 'Hello! I am your automated Talkie booking assistant. Would you like to schedule or reschedule an appointment?',
     prompt:
-      'You are an efficient scheduling assistant. Ask for caller name, preferred date and time, and confirm their phone number for SMS reminders.',
+      'You are an efficient scheduling and logistics assistant. Confirm caller details, preferred time slot in IST, and verify their mobile number (+91) for instant WhatsApp & SMS confirmations.',
   },
 ];
 

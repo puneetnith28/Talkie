@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Card, Badge, Dialog } from '@talkie/ui';
-import { Phone, Search, Plus, Check, Loader2, Sparkles } from 'lucide-react';
+import { Button, Input, Card, Badge } from '@talkie/ui';
+import { Phone, Search, Plus, Check, Loader2 } from 'lucide-react';
 import type { AvailableNumber } from '@talkie/telephony';
 
 interface ProvisionModalProps {
@@ -12,9 +12,20 @@ interface ProvisionModalProps {
   agents?: any[];
 }
 
+const INDIAN_POPULAR_CODES = [
+  { code: '80', name: 'Bengaluru' },
+  { code: '11', name: 'Delhi NCR' },
+  { code: '22', name: 'Mumbai' },
+  { code: '40', name: 'Hyderabad' },
+  { code: '20', name: 'Pune' },
+  { code: '44', name: 'Chennai' },
+  { code: '98', name: 'Mobile 98' },
+  { code: '99', name: 'Mobile 99' },
+];
+
 export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: ProvisionModalProps) {
-  const [areaCode, setAreaCode] = useState('415');
-  const [country, setCountry] = useState('US');
+  const [areaCode, setAreaCode] = useState('80');
+  const [country, setCountry] = useState('IN');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<AvailableNumber[]>([]);
   const [selectedNumber, setSelectedNumber] = useState<AvailableNumber | null>(null);
@@ -83,7 +94,7 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
             </div>
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight">Provision Phone Number</h2>
-              <p className="text-xs text-neutral-400">Search instant E.164 carrier inventory and attach to agents</p>
+              <p className="text-xs text-neutral-400">Search instant Indian (+91) & Global carrier numbers and attach to agents</p>
             </div>
           </div>
           <button
@@ -101,53 +112,83 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
         )}
 
         {/* Search Controls */}
-        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <label className="text-[11px] font-medium text-neutral-400">Country</label>
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              className="w-full h-9 px-3 rounded-md bg-white/[0.04] border border-white/[0.1] text-xs text-white focus:outline-none focus:border-emerald-500/50"
-            >
-              <option value="US">United States (+1)</option>
-              <option value="CA">Canada (+1)</option>
-            </select>
+        <form onSubmit={handleSearch} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-neutral-400">Country</label>
+              <select
+                value={country}
+                onChange={(e) => {
+                  const c = e.target.value;
+                  setCountry(c);
+                  setAreaCode(c === 'IN' ? '80' : c === 'US' ? '415' : c === 'GB' ? '20' : '416');
+                }}
+                className="w-full h-9 px-3 rounded-md bg-white/[0.04] border border-white/[0.1] text-xs text-white focus:outline-none focus:border-emerald-500/50 cursor-pointer"
+              >
+                <option value="IN">🇮🇳 India (+91)</option>
+                <option value="US">🇺🇸 United States (+1)</option>
+                <option value="GB">🇬🇧 United Kingdom (+44)</option>
+                <option value="CA">🇨🇦 Canada (+1)</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-neutral-400">
+                {country === 'IN' ? 'STD / Mobile Code (e.g. 80, 11, 22, 98)' : 'Area Code'}
+              </label>
+              <Input
+                value={areaCode}
+                onChange={(e) => setAreaCode(e.target.value)}
+                placeholder={country === 'IN' ? '80' : '415'}
+                className="h-9 text-xs font-mono"
+                required
+              />
+            </div>
+
+            <div className="flex items-end">
+              <Button
+                type="submit"
+                disabled={searching}
+                className="w-full h-9 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs gap-1.5"
+              >
+                {searching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                <span>Search Numbers</span>
+              </Button>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[11px] font-medium text-neutral-400">Area Code</label>
-            <Input
-              value={areaCode}
-              onChange={(e) => setAreaCode(e.target.value)}
-              placeholder="e.g. 415, 212, 416"
-              className="h-9 text-xs"
-              required
-            />
-          </div>
-
-          <div className="flex items-end">
-            <Button
-              type="submit"
-              disabled={searching}
-              className="w-full h-9 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs gap-1.5"
-            >
-              {searching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
-              <span>Search Numbers</span>
-            </Button>
-          </div>
+          {country === 'IN' && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <span className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold mr-1">Quick Select:</span>
+              {INDIAN_POPULAR_CODES.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => setAreaCode(c.code)}
+                  className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors ${
+                    areaCode === c.code
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      : 'bg-white/[0.02] text-neutral-400 border-white/[0.06] hover:text-white'
+                  }`}
+                >
+                  {c.name} ({c.code})
+                </button>
+              ))}
+            </div>
+          )}
         </form>
 
         {/* Search Results List */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs text-neutral-400">
             <span>Available Numbers</span>
-            <span className="font-mono text-neutral-500">$1.50 / month</span>
+            <span className="font-mono text-neutral-500">$1.50 (₹125) / month</span>
           </div>
 
           <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
             {results.length === 0 && !searching && (
               <div className="p-8 text-center text-xs text-neutral-500 bg-white/[0.02] rounded-lg border border-white/[0.04]">
-                Enter an area code and click Search to query available inventory.
+                Enter an Indian area/STD code (e.g., 80 for Bengaluru, 11 for Delhi, 22 for Mumbai) and click Search.
               </div>
             )}
 
@@ -190,7 +231,7 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
         {/* Agent Assignment Selection */}
         {selectedNumber && (
           <div className="space-y-2 pt-2 border-t border-white/[0.08]">
-            <label className="text-xs font-medium text-neutral-300">Assign to Agent (Optional)</label>
+            <label className="text-xs font-medium text-neutral-300">Assign to Voice Agent (Optional)</label>
             <select
               value={selectedAgentId}
               onChange={(e) => setSelectedAgentId(e.target.value)}
@@ -218,7 +259,7 @@ export function ProvisionModal({ isOpen, onClose, onSuccess, agents = [] }: Prov
             className="bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-[0_0_20px_rgba(16,185,129,0.3)] gap-1.5"
           >
             {provisioning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-            <span>{provisioning ? 'Provisioning...' : 'Provision Number ($1.50/mo)'}</span>
+            <span>{provisioning ? 'Provisioning...' : 'Provision Number ($1.50 / mo)'}</span>
           </Button>
         </div>
       </Card>

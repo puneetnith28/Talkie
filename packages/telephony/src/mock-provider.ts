@@ -7,18 +7,29 @@ import type {
 } from './types';
 
 const AREA_CODES: Record<string, { city: string; region: string; country: string; countryCode: string }> = {
+  // India (Primary)
+  '80': { city: 'Bengaluru', region: 'Karnataka', country: 'IN', countryCode: '+91' },
+  '11': { city: 'New Delhi', region: 'Delhi NCR', country: 'IN', countryCode: '+91' },
+  '22': { city: 'Mumbai', region: 'Maharashtra', country: 'IN', countryCode: '+91' },
+  '40': { city: 'Hyderabad', region: 'Telangana', country: 'IN', countryCode: '+91' },
+  '20': { city: 'Pune', region: 'Maharashtra', country: 'IN', countryCode: '+91' },
+  '44': { city: 'Chennai', region: 'Tamil Nadu', country: 'IN', countryCode: '+91' },
+  '33': { city: 'Kolkata', region: 'West Bengal', country: 'IN', countryCode: '+91' },
+  '79': { city: 'Ahmedabad', region: 'Gujarat', country: 'IN', countryCode: '+91' },
+  '124': { city: 'Gurugram', region: 'Haryana', country: 'IN', countryCode: '+91' },
+  '120': { city: 'Noida', region: 'Uttar Pradesh', country: 'IN', countryCode: '+91' },
+  '98': { city: 'National Mobile (Series 98)', region: 'India', country: 'IN', countryCode: '+91' },
+  '99': { city: 'National Mobile (Series 99)', region: 'India', country: 'IN', countryCode: '+91' },
+  '97': { city: 'National Mobile (Series 97)', region: 'India', country: 'IN', countryCode: '+91' },
+  '88': { city: 'National Mobile (Series 88)', region: 'India', country: 'IN', countryCode: '+91' },
+
+  // Global (US / CA / UK)
   '415': { city: 'San Francisco', region: 'CA', country: 'US', countryCode: '+1' },
   '212': { city: 'New York', region: 'NY', country: 'US', countryCode: '+1' },
   '312': { city: 'Chicago', region: 'IL', country: 'US', countryCode: '+1' },
   '512': { city: 'Austin', region: 'TX', country: 'US', countryCode: '+1' },
-  '206': { city: 'Seattle', region: 'WA', country: 'US', countryCode: '+1' },
-  '305': { city: 'Miami', region: 'FL', country: 'US', countryCode: '+1' },
-  '617': { city: 'Boston', region: 'MA', country: 'US', countryCode: '+1' },
-  '404': { city: 'Atlanta', region: 'GA', country: 'US', countryCode: '+1' },
-  '213': { city: 'Los Angeles', region: 'CA', country: 'US', countryCode: '+1' },
+  '207': { city: 'London', region: 'Greater London', country: 'GB', countryCode: '+44' },
   '416': { city: 'Toronto', region: 'ON', country: 'CA', countryCode: '+1' },
-  '604': { city: 'Vancouver', region: 'BC', country: 'CA', countryCode: '+1' },
-  '514': { city: 'Montreal', region: 'QC', country: 'CA', countryCode: '+1' },
 };
 
 export class MockTelephonyProvider implements TelephonyProvider {
@@ -28,22 +39,45 @@ export class MockTelephonyProvider implements TelephonyProvider {
    * Generates realistic mock available phone numbers based on query parameters
    */
   async searchNumbers(query: SearchNumbersQuery): Promise<AvailableNumber[]> {
-    const areaCode = query.areaCode || '415';
+    const isIndia = (query.country || 'IN') === 'IN';
+    const defaultAreaCode = isIndia ? '80' : '415';
+    const areaCode = query.areaCode || defaultAreaCode;
+
     const areaInfo = AREA_CODES[areaCode] || {
-      city: 'Metro',
-      region: 'US',
-      country: query.country || 'US',
-      countryCode: '+1',
+      city: isIndia ? 'Bengaluru' : 'San Francisco',
+      region: isIndia ? 'Karnataka' : 'CA',
+      country: query.country || (isIndia ? 'IN' : 'US'),
+      countryCode: isIndia ? '+91' : '+1',
     };
 
     const count = query.limit || 8;
     const numbers: AvailableNumber[] = [];
 
     for (let i = 1; i <= count; i++) {
-      const line = Math.floor(1000 + Math.random() * 8999).toString();
-      const prefix = '555';
-      const rawNumber = `${areaInfo.countryCode}${areaCode}${prefix}${line}`;
-      const friendlyName = `(${areaCode}) ${prefix}-${line}`;
+      let rawNumber = '';
+      let friendlyName = '';
+
+      if (areaInfo.countryCode === '+91') {
+        // Indian E.164 10-digit format
+        if (['98', '99', '97', '88'].includes(areaCode)) {
+          const suffix = Math.floor(10000000 + Math.random() * 89999999).toString();
+          const tenDigit = `${areaCode}${suffix.slice(0, 8)}`;
+          rawNumber = `+91${tenDigit}`;
+          friendlyName = `+91 ${tenDigit.slice(0, 5)} ${tenDigit.slice(5)}`;
+        } else {
+          // Landline STD format (e.g. 080-4567-8901)
+          const line = Math.floor(1000000 + Math.random() * 8999999).toString();
+          const tenDigit = `${areaCode}${line.slice(0, 10 - areaCode.length)}`;
+          rawNumber = `+91${tenDigit}`;
+          friendlyName = `+91 ${areaCode} ${line.slice(0, 4)} ${line.slice(4, 7)}`;
+        }
+      } else {
+        // Standard US/CA/UK format
+        const line = Math.floor(1000 + Math.random() * 8999).toString();
+        const prefix = '555';
+        rawNumber = `${areaInfo.countryCode}${areaCode}${prefix}${line}`;
+        friendlyName = `(${areaCode}) ${prefix}-${line}`;
+      }
 
       if (query.contains && !rawNumber.includes(query.contains)) {
         continue;

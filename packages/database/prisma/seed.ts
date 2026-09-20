@@ -79,13 +79,13 @@ async function main() {
   const supportAgent = await prisma.agent.create({
     data: {
       workspaceId: workspace.id,
-      name: 'Support Concierge',
-      description: 'Front-line customer support and inbound triage assistant',
+      name: 'Priya — Support Concierge',
+      description: 'Front-line Indian customer support and inbound triage assistant',
       voiceMode: 'hosted',
-      systemPrompt: 'You are a warm, helpful, and concise customer support specialist for Talkie.',
-      beginMessage: 'Thank you for calling Talkie! How can I assist you today?',
-      voice: 'aura-asteria-en',
-      language: 'en-US',
+      systemPrompt: 'You are a warm, helpful, and concise customer support specialist for Talkie in India. You speak fluent Indian English with natural bilingual Hindi fluency.',
+      beginMessage: 'Namaste and thank you for calling Talkie India! How can I assist you today?',
+      voice: 'aura-priya-in',
+      language: 'en-IN',
       voiceSpeed: 1.0,
       interruptionSensitivity: 0.6,
       enableBackchannel: true,
@@ -96,13 +96,13 @@ async function main() {
   const sdrAgent = await prisma.agent.create({
     data: {
       workspaceId: workspace.id,
-      name: 'Enterprise SDR Bot',
-      description: 'Outbound sales qualification and product demonstration scheduler',
+      name: 'Aarav — Enterprise SDR Bot',
+      description: 'Outbound sales qualification and product demonstration scheduler for Indian enterprises',
       voiceMode: 'hosted',
-      systemPrompt: 'You are an energetic and polite sales development representative.',
-      beginMessage: 'Hi there! Calling to follow up on your voice AI infrastructure interest.',
-      voice: 'aura-orpheus-en',
-      language: 'en-US',
+      systemPrompt: 'You are an energetic and polite sales development representative based in Bengaluru.',
+      beginMessage: 'Namaste! Aarav calling from Talkie regarding your voice AI telecom infrastructure interest.',
+      voice: 'aura-aarav-in',
+      language: 'en-IN',
       voiceSpeed: 1.05,
       interruptionSensitivity: 0.5,
       enableBackchannel: true,
@@ -111,16 +111,16 @@ async function main() {
   });
   console.log('🤖 Created demo agents:', supportAgent.name, sdrAgent.name);
 
-  // 6. Create Demo Phone Numbers
+  // 6. Create Demo Phone Numbers (India +91)
   const number1 = await prisma.phoneNumber.upsert({
-    where: { phoneNumber: '+14155550142' },
+    where: { phoneNumber: '+918045678901' },
     update: { agentId: supportAgent.id },
     create: {
       workspaceId: workspace.id,
-      phoneNumber: '+14155550142',
-      country: 'US',
-      countryCode: '+1',
-      areaCode: '415',
+      phoneNumber: '+918045678901',
+      country: 'IN',
+      countryCode: '+91',
+      areaCode: '80',
       provider: 'mock',
       capabilitiesJson: JSON.stringify({ voice: true, sms: true, mms: false }),
       status: 'active',
@@ -129,45 +129,45 @@ async function main() {
   });
 
   const number2 = await prisma.phoneNumber.upsert({
-    where: { phoneNumber: '+12125550198' },
+    where: { phoneNumber: '+919876543210' },
     update: { agentId: sdrAgent.id },
     create: {
       workspaceId: workspace.id,
-      phoneNumber: '+12125550198',
-      country: 'US',
-      countryCode: '+1',
-      areaCode: '212',
+      phoneNumber: '+919876543210',
+      country: 'IN',
+      countryCode: '+91',
+      areaCode: '98',
       provider: 'mock',
       capabilitiesJson: JSON.stringify({ voice: true, sms: true, mms: true }),
       status: 'active',
       agentId: sdrAgent.id,
     },
   });
-  console.log('📞 Provisioned numbers:', number1.phoneNumber, number2.phoneNumber);
+  console.log('📞 Provisioned Indian numbers:', number1.phoneNumber, number2.phoneNumber);
 
-  // 7. Create Demo Contacts
-  const contactSarah = await prisma.contact.create({
+  // 7. Create Demo Contacts (India)
+  const contactPriya = await prisma.contact.create({
     data: {
       workspaceId: workspace.id,
-      name: 'Sarah Connor',
-      phoneNumber: '+14155550188',
-      email: 'sarah@cyberdyne.io',
-      company: 'Cyberdyne Systems',
-      notes: 'Interested in ultra-low latency voice agents',
+      name: 'Priya Sharma',
+      phoneNumber: '+919820155432',
+      email: 'priya.sharma@infosys-tech.in',
+      company: 'Tech Solutions India',
+      notes: 'Interested in ultra-low latency voice agents for Indian telecom',
     },
   });
 
-  const contactMiles = await prisma.contact.create({
+  const contactRahul = await prisma.contact.create({
     data: {
       workspaceId: workspace.id,
-      name: 'Miles Dyson',
-      phoneNumber: '+12125550199',
-      email: 'miles@neuralnet.org',
-      company: 'Neural Net Labs',
-      notes: 'Requested SMS notification webhooks demo',
+      name: 'Rahul Verma',
+      phoneNumber: '+919988776655',
+      email: 'rahul.verma@bangalore-startups.com',
+      company: 'Bengaluru AI Ventures',
+      notes: 'Requested WhatsApp Business & SMS webhooks integration demo',
     },
   });
-  console.log('👥 Created contacts:', contactSarah.name, contactMiles.name);
+  console.log('👥 Created contacts:', contactPriya.name, contactRahul.name);
 
   // 8. Create Demo Calls & Transcripts
   const call1 = await prisma.call.create({
@@ -176,21 +176,21 @@ async function main() {
       agentId: supportAgent.id,
       phoneNumberId: number1.id,
       direction: 'inbound',
-      fromNumber: contactSarah.phoneNumber,
+      fromNumber: contactPriya.phoneNumber,
       toNumber: number1.phoneNumber,
       status: 'completed',
       durationSeconds: 78,
       startedAt: new Date(Date.now() - 3600000),
       endedAt: new Date(Date.now() - 3600000 + 78000),
-      summary: 'Caller inquired about pricing tiers and upgraded to Enterprise plan.',
+      summary: 'Caller inquired about Indian telecom SIP trunks and upgraded to Enterprise plan.',
       transcriptStatus: 'completed',
       transcripts: {
         create: [
-          { speaker: 'agent', text: 'Thank you for calling Talkie! How can I assist you today?', timestampMs: 0 },
-          { speaker: 'user', text: 'Hi! I wanted to check the pricing for high-concurrency phone streams.', timestampMs: 3200 },
-          { speaker: 'agent', text: 'Our platform supports sub-500ms voice turnarounds with volume discounts starting at 50 concurrent lines.', timestampMs: 8100 },
-          { speaker: 'user', text: 'That sounds perfect. Can we schedule a technical onboarding session?', timestampMs: 14500 },
-          { speaker: 'agent', text: 'Absolutely! I have sent an invite link directly to your email on file.', timestampMs: 19800 },
+          { speaker: 'agent', text: 'Namaste and thank you for calling Talkie India! How can I assist you today?', timestampMs: 0 },
+          { speaker: 'user', text: 'Hi! I wanted to check the pricing for Indian SIP numbers and WhatsApp Cloud integration.', timestampMs: 3200 },
+          { speaker: 'agent', text: 'Our platform supports sub-500ms voice turnarounds with full support for Indian +91 numbers and Airtel/Jio carrier routes.', timestampMs: 8100 },
+          { speaker: 'user', text: 'That sounds perfect. Can we schedule a technical onboarding session for our Bengaluru team?', timestampMs: 14500 },
+          { speaker: 'agent', text: 'Absolutely! I have sent an invite link directly to your email and WhatsApp.', timestampMs: 19800 },
         ],
       },
     },
@@ -202,24 +202,24 @@ async function main() {
       workspaceId: workspace.id,
       agentId: supportAgent.id,
       phoneNumberId: number1.id,
-      contactId: contactSarah.id,
+      contactId: contactPriya.id,
       channel: 'sms',
       lastMessageAt: new Date(),
       messages: {
         create: [
           {
             direction: 'inbound',
-            senderNumber: contactSarah.phoneNumber,
+            senderNumber: contactPriya.phoneNumber,
             recipientNumber: number1.phoneNumber,
-            body: 'Hey, does Talkie support Spanish language models out of the box?',
+            body: 'Namaste, does Talkie support Hindi and Indian regional languages out of the box?',
             status: 'delivered',
             sentAt: new Date(Date.now() - 600000),
           },
           {
             direction: 'outbound',
             senderNumber: number1.phoneNumber,
-            recipientNumber: contactSarah.phoneNumber,
-            body: 'Yes! Talkie supports over 40 languages including Spanish (es-ES and es-MX) with native voice accents.',
+            recipientNumber: contactPriya.phoneNumber,
+            body: 'Yes! Talkie supports Hindi, Indian English, Tamil, Telugu, and over 40 global languages with natural accents.',
             status: 'delivered',
             sentAt: new Date(Date.now() - 540000),
           },

@@ -130,7 +130,7 @@ export function ContactModal({
                 setPhoneNumber(e.target.value);
                 if (fieldErrors.phoneNumber) setFieldErrors((prev) => ({ ...prev, phoneNumber: '' }));
               }}
-              placeholder="+14155550199"
+              placeholder="+91 98765 43210"
               disabled={!!existingContact || loading}
               className={`bg-black/40 border-white/[0.08] text-xs h-9 font-mono ${
                 fieldErrors.phoneNumber ? 'border-red-500/60 focus:border-red-500' : ''
@@ -151,7 +151,7 @@ export function ContactModal({
                 setName(e.target.value);
                 if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: '' }));
               }}
-              placeholder="Sarah Connor"
+              placeholder="Priya Sharma"
               disabled={loading}
               className={`bg-black/40 border-white/[0.08] text-xs h-9 ${
                 fieldErrors.name ? 'border-red-500/60 focus:border-red-500' : ''
@@ -172,7 +172,7 @@ export function ContactModal({
               <Input
                 value={whatsappId}
                 onChange={(e) => setWhatsappId(e.target.value)}
-                placeholder="+14155550199"
+                placeholder="+91 98765 43210"
                 disabled={loading}
                 className="bg-black/40 border-white/[0.08] text-xs h-9 font-mono"
               />
@@ -202,7 +202,7 @@ export function ContactModal({
                   setEmail(e.target.value);
                   if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: '' }));
                 }}
-                placeholder="sarah@example.com"
+                placeholder="priya@example.in"
                 type="email"
                 disabled={loading}
                 className={`bg-black/40 border-white/[0.08] text-xs h-9 ${
@@ -218,7 +218,7 @@ export function ContactModal({
               <Input
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                placeholder="Acme Corp"
+                placeholder="Tech Solutions India"
                 disabled={loading}
                 className="bg-black/40 border-white/[0.08] text-xs h-9"
               />

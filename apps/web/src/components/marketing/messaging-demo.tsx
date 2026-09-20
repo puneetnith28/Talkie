@@ -65,7 +65,7 @@ export function MessagingDemo() {
           </div>
           <div>
             <div className="text-xs font-bold text-white tracking-tight">Omnichannel SMS Concierge</div>
-            <div className="text-[10px] text-neutral-400 font-mono">+1 (415) 555-0199 • 2-Way Conversational</div>
+            <div className="text-[10px] text-neutral-400 font-mono">+91 98765 43210 • 2-Way SMS &amp; WhatsApp</div>
           </div>
         </div>
 

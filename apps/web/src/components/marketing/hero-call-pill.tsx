@@ -10,9 +10,9 @@ interface Turn {
 }
 
 const CONVERSATION_FLOW: Turn[] = [
-  { speaker: 'agent', text: "Hello! Talkie AI assistant online. How can I direct your call?", time: "13:13" },
-  { speaker: 'user', text: "Hi, I'd like to book an enterprise voice demo for our support team.", time: "13:14" },
-  { speaker: 'agent', text: "Perfect! I've reserved Thursday at 2:00 PM EST. Confirmation sent via SMS.", time: "13:15" },
+  { speaker: 'agent', text: "Namaste! Talkie AI assistant online. How can I direct your call today?", time: "13:13" },
+  { speaker: 'user', text: "Hi, I'd like to book an enterprise voice demo for our support team in Bengaluru.", time: "13:14" },
+  { speaker: 'agent', text: "Wonderful! I've reserved Thursday at 3:00 PM IST. Confirmation sent via WhatsApp & SMS.", time: "13:15" },
 ];
 
 export function HeroCallPill() {
@@ -63,7 +63,7 @@ export function HeroCallPill() {
       <div className="relative z-20 flex items-center justify-between gap-4 sm:gap-6 px-5 sm:px-7 py-3 rounded-full bg-[#120b0f]/95 border border-white/[0.15] shadow-2xl backdrop-blur-xl animate-in zoom-in-95 duration-300">
         {/* Phone Number */}
         <div className="font-mono text-sm sm:text-base font-semibold text-white tracking-wide">
-          +1 (415) 555-0142
+          +91 80 4567 8901
         </div>
 
         {/* Timer */}
