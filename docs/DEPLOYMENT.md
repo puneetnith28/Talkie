@@ -1,145 +1,78 @@
-# Talkie — Deployment & Operations Guide
+# Deployment & Cloud Topology
 
-Talkie is a cloud-native, carrier-grade AI telephony and omnichannel messaging platform. This guide covers containerized deployment, production environment variables, database configuration, infrastructure scaling, and monitoring.
-
----
-
-## 1. Architecture Overview
-
-- **Core Web & API:** Next.js 14 App Router, REST API v1 (`/api/v1/*`), Server-Sent Events real-time pubsub (`/api/v1/realtime`), interactive Swagger docs (`/docs`).
-- **Database Layer:** Prisma ORM with SQLite for edge / local dev or PostgreSQL / MySQL for clustered multi-region enterprise deployments.
-- **Engines & SDKs:**
-  - `@talkie/telephony`: Multi-provider carrier adapter (Twilio, Telnyx, Mock).
-  - `@talkie/voice`: STT / LLM / TTS orchestration with turn-taking and interruption handling.
-  - `@talkie/webhook-engine`: HMAC-SHA256 signed event delivery with exponential backoff & dead-lettering.
-  - `@talkie/billing`: Real-time consumption metering and Stripe automated ledger.
-  - `@talkie/mcp-server`: Model Context Protocol server for Claude / AI coding assistants.
-  - `@talkie/sdk` & `talkie-sdk`: TypeScript and Python client SDKs.
+Talkie supports enterprise deployments on **Vercel (Serverless)**, **Docker Containers**, **Kubernetes**, and **Fly.io**.
 
 ---
 
-## 2. Environment Configuration
+## 1. Cloud Production Topology
 
-Create a `.env.production` file with the following variables:
+```mermaid
+flowchart TD
+    subgraph Edge["Edge / CDN Network"]
+        DNS["Custom Domain / Route53"] --> CDN["Cloudflare / Vercel Edge"]
+    end
 
-```bash
-# General
-NODE_ENV=production
-PORT=3000
-NEXTAUTH_URL=https://your-domain.com
-NEXTAUTH_SECRET=generate-a-strong-random-32-byte-hex-string
+    subgraph AppTier["Application Layer"]
+        CDN --> NextApp["Next.js Web & API Server\n(Vercel Serverless / Docker)"]
+    end
 
-# Database
-DATABASE_URL="file:./prod.db" # or "postgresql://user:pass@host:5432/talkie"
-
-# Telephony (Twilio / Carrier)
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-
-# Voice AI Stack
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx
-ELEVENLABS_API_KEY=your_elevenlabs_api_key
-DEEPGRAM_API_KEY=your_deepgram_api_key
-
-# Billing & Payments
-STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxxxxxxxxxxxxx
-STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxxx
-
-# Feature Flags
-TALKIE_DEMO_MODE=false # Set true to fallback gracefully without live carrier credentials
+    subgraph ServiceMesh["Managed Cloud Services"]
+        NextApp <--> Clerk["Clerk Authentication"]
+        NextApp <--> Database[("PostgreSQL Database\n(Neon / Supabase / AWS RDS)")]
+        NextApp <--> Redis[("Redis Pub/Sub & Cache\n(Upstash / AWS ElastiCache)")]
+        NextApp <--> AIProviders["AI Speech & LLM APIs\n(Deepgram / OpenAI / ElevenLabs)"]
+        NextApp <--> Carriers["Telephony Carriers\n(Twilio / Telnyx)"]
+    end
 ```
 
 ---
 
-## 3. Docker Deployment
+## 2. Deploying on Vercel (Next.js Monorepo)
 
-### 3.1 Local Container Run
+### Project Configuration
+- **Framework Preset:** `Next.js`
+- **Root Directory:** `./`
+- **Build Command:** `pnpm --filter @talkie/database db:generate && pnpm --filter @talkie/web build`
+- **Output Directory:** Default (`.next`)
+- **Install Command:** `pnpm install`
 
-```bash
-# Build the multi-stage image
-docker build -t talkie-platform:latest .
-
-# Run container with volume mount for persistent database
-docker run -d \
-  -p 3000:3000 \
-  --name talkie-app \
-  -e NEXTAUTH_SECRET="super-secret-key-at-least-32-characters" \
-  -e NEXTAUTH_URL="http://localhost:3000" \
-  -e TALKIE_DEMO_MODE="true" \
-  -v $(pwd)/packages/database/prisma:/app/packages/database/prisma \
-  talkie-platform:latest
-```
-
-### 3.2 Production Docker Compose
-
-```bash
-# Start container cluster in detached mode
-docker-compose -f docker-compose.prod.yml up -d
-
-# View container logs
-docker-compose -f docker-compose.prod.yml logs -f
-
-# Check health check status
-docker-compose -f docker-compose.prod.yml ps
+### Required Environment Variables
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
+AUTH_SECRET=your_32_char_secret_key
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+APP_URL=https://your-domain.vercel.app
+API_URL=https://your-domain.vercel.app/api
 ```
 
 ---
 
-## 4. Kubernetes Deployment
+## 3. Docker Multi-Stage Build
 
-### Manifest (`k8s-deployment.yaml`)
+```dockerfile
+# syntax=docker/dockerfile:1.4
+FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10.18.1 --activate
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: talkie-platform
-  labels:
-    app: talkie
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: talkie
-  template:
-    metadata:
-      labels:
-        app: talkie
-    spec:
-      containers:
-      - name: web
-        image: talkie-platform:latest
-        ports:
-        - containerPort: 3000
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 15
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/ready
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        resources:
-          limits:
-            cpu: "2"
-            memory: "2Gi"
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
+FROM base AS builder
+WORKDIR /app
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm db:generate
+RUN pnpm --filter @talkie/web build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/public
+
+EXPOSE 3000
+CMD ["node", "apps/web/server.js"]
 ```
-
----
-
-## 5. Observability & Health Monitoring
-
-Talkie exposes zero-auth standardized health check endpoints for load balancers and orchestrators:
-
-- **Liveness Probe:** `GET /api/health`
-  - Returns `200 OK` with `{ status: "healthy", timestamp, uptime, version }`
-- **Readiness Probe:** `GET /api/ready`
-  - Performs active database ping and system check before returning `200 OK` or `503 Service Unavailable`.
-- **Request Tracing:** All incoming HTTP requests are assigned a unique `X-Request-Id` correlation header, propagated across logs, API responses, and webhook dispatches.

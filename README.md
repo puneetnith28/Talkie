@@ -36,31 +36,78 @@ Talkie is an open-source, carrier-grade SaaS platform that equips AI agents with
 
 ---
 
+## 📚 Comprehensive Documentation Suite
+
+We have thoroughly documented every aspect of Talkie in the [`docs/`](docs/) directory. Whether you are configuring conversational AI agents, extending telephony providers, securing webhook deliveries, or deploying to production, these guides provide deep technical context.
+
+1. **[Architecture & Topology](docs/ARCHITECTURE.md)**: Deep dive into the system topology, monorepo structure, Next.js Edge/Server runtime, Audio WebSockets, and Voice AI Engine.
+2. **[Voice AI Pipeline & Turn State Machine](docs/VOICE_PIPELINE.md)**: Detailed breakdown of STT (Deepgram/Whisper), LLM streaming orchestrator, TTS (ElevenLabs/OpenAI), and speech barge-in interruption detection.
+3. **[Telephony & Omnichannel Messaging](docs/TELEPHONY.md)**: Carrier provider adapter architecture, mock telephony simulator, WhatsApp/Telegram channel accounts, and conversation threading.
+4. **[Data Model & State Machines](docs/DATA_MODEL.md)**: Comprehensive breakdown of the Prisma schema, call lifecycle states, message transitions, and multi-tenant isolation.
+5. **[Security, Auth & Multi-Tenancy](docs/SECURITY.md)**: Documentation on Clerk authentication, workspace RBAC, API key hashing, and HMAC-SHA256 signed webhooks.
+6. **[UI & Design System](docs/DESIGN_SYSTEM.md)**: Overview of the component architecture, glassmorphism dark aesthetic, Tailwind tokens, and animated state transitions.
+7. **[API & Protocol Reference](docs/API.md)**: Internal and public REST API routes, SSE event streams, and Model Context Protocol (MCP) server specifications.
+8. **[Deployment & Cloud Topology](docs/DEPLOYMENT.md)**: The exact production topology, Vercel monorepo deployment, Docker containerization, and environment variables.
+9. **[Development & Contribution Guide](docs/DEVELOPMENT.md)**: Local development setup, database migrations, testing matrix, and CI/CD pipelines.
+10. **[Environment Configuration](docs/ENVIRONMENT.md)**: Master environment variable template and deep-dive explanation for all required telephony, AI, auth, and database keys.
+
+---
+
 ## Architecture
 
-```
-                                  ┌────────────────────────┐
-                                  │      Client Apps       │
-                                  │ (Dashboard / SDK / MCP)│
-                                  └───────────┬────────────┘
-                                              │ REST / SSE
-                                              ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                Talkie Platform Core                                    │
-│                                                                                        │
-│  ┌──────────────────────┐   ┌──────────────────────┐   ┌────────────────────────────┐  │
-│  │    Apps / Web & API  │   │  Telephony Provider  │   │      Voice AI Engine       │  │
-│  │  - Dashboard UI      │   │  - Carrier Adapter   │   │  - Turn State Machine      │  │
-│  │  - REST API v1       │   │  - Mock / Twilio     │   │  - STT / LLM / TTS         │  │
-│  │  - Realtime SSE      │   │  - Delivery Manager  │   │  - Session Coordinator     │  │
-│  └──────────┬───────────┘   └──────────┬───────────┘   └─────────────┬──────────────┘  │
-│             │                          │                             │                 │
-│  ┌──────────▼───────────┐   ┌──────────▼───────────┐   ┌─────────────▼──────────────┐  │
-│  │   Prisma Database    │   │    Webhook Engine    │   │      Billing & Meter      │  │
-│  │  - Multi-Tenant DB   │   │  - HMAC-SHA256 Sign  │   │  - Usage Metering          │  │
-│  │  - Tenant Guards     │   │  - Backoff Retries   │   │  - Stripe Integration      │  │
-│  └──────────────────────┘   └──────────────────────┘   └────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Clients["Client Layer"]
+        WebDashboard["Web Dashboard (Next.js 15)"]
+        MobileUsers["Mobile & Inbound Callers"]
+        AgentClients["Claude Code / Cursor (MCP)"]
+        ExtApps["Third-Party Apps (SDK / REST API)"]
+    end
+
+    subgraph API_Edge["API Gateway & Web Layer (apps/web)"]
+        NextServer["Next.js App Server"]
+        ClerkAuth["Clerk Auth & Session Validator"]
+        SSEHub["Real-time SSE Stream Hub"]
+        RESTRouter["REST API v1 Controller"]
+    end
+
+    subgraph Core_Engines["Core Domain Engines (packages/*)"]
+        VoiceEngine["Voice AI Engine\n(State Machine, STT, LLM, TTS)"]
+        Telephony["Telephony Provider Adapter\n(Mock / Twilio / Telnyx)"]
+        WebhookEng["Webhook Dispatch Engine\n(HMAC-SHA256, Retry Queue)"]
+        BillingEng["Usage Metering & Billing\n(Per-second Ledger)"]
+    end
+
+    subgraph Persistence["Data & External Services"]
+        PrismaDB[("Database (PostgreSQL / SQLite)\nPrisma ORM")]
+        ExternalLLM["LLM Providers\n(OpenAI / Anthropic / Groq)"]
+        SpeechServices["STT & TTS Providers\n(Deepgram / ElevenLabs)"]
+        ClerkService["Clerk Authentication Cloud"]
+    end
+
+    WebDashboard --> NextServer
+    MobileUsers <--> Telephony
+    AgentClients --> NextServer
+    ExtApps --> NextServer
+
+    NextServer --> ClerkAuth
+    ClerkAuth <--> ClerkService
+    NextServer --> RESTRouter
+    NextServer --> SSEHub
+
+    RESTRouter --> VoiceEngine
+    RESTRouter --> Telephony
+    RESTRouter --> WebhookEng
+    RESTRouter --> BillingEng
+
+    VoiceEngine <--> SpeechServices
+    VoiceEngine <--> ExternalLLM
+
+    Telephony --> PrismaDB
+    VoiceEngine --> PrismaDB
+    WebhookEng --> PrismaDB
+    BillingEng --> PrismaDB
+    RESTRouter --> PrismaDB
 ```
 
 ---
