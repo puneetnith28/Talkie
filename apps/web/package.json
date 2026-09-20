@@ -20,6 +20,7 @@
     "@talkie/mcp-server": "workspace:*",
     "@talkie/types": "workspace:*",
     "@talkie/ui": "workspace:*",
+    "@clerk/nextjs": "^6.12.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",
     "next": "^15.1.7",
