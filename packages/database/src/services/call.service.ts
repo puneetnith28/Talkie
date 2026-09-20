@@ -4,15 +4,18 @@ import type { CallDirection, CallStatus, SpeakerType } from '@talkie/types';
 export interface CreateCallInput {
   agentId?: string;
   phoneNumberId?: string;
+  contactId?: string;
   providerCallId?: string;
-  direction: CallDirection;
-  fromNumber: string;
-  toNumber: string;
-  status?: CallStatus;
+  direction: CallDirection | string;
+  fromNumber?: string;
+  toNumber?: string;
+  callerNumber?: string;
+  calleeNumber?: string;
+  status?: CallStatus | string;
 }
 
 export interface UpdateCallInput {
-  status?: CallStatus;
+  status?: CallStatus | string;
   durationSeconds?: number;
   startedAt?: Date;
   endedAt?: Date;
@@ -22,9 +25,10 @@ export interface UpdateCallInput {
 }
 
 export interface AddTranscriptInput {
-  speaker: SpeakerType;
+  speaker: SpeakerType | string;
   text: string;
   timestampMs?: number;
+  startTimeOffsetMs?: number;
   confidence?: number;
 }
 
@@ -33,6 +37,9 @@ export class CallService {
    * Create a new call record scoped to a workspace
    */
   static async createCall(workspaceId: string, input: CreateCallInput) {
+    const fromNumber = input.fromNumber || input.callerNumber || '';
+    const toNumber = input.toNumber || input.calleeNumber || '';
+
     return prisma.call.create({
       data: {
         workspaceId,
@@ -40,16 +47,21 @@ export class CallService {
         phoneNumberId: input.phoneNumberId,
         providerCallId: input.providerCallId,
         direction: input.direction,
-        fromNumber: input.fromNumber,
-        toNumber: input.toNumber,
+        fromNumber,
+        toNumber,
         status: input.status ?? 'queued',
-        startedAt: input.status === 'in_progress' ? new Date() : undefined,
+        startedAt: input.status === 'in-progress' || input.status === 'in_progress' ? new Date() : undefined,
       },
       include: {
         agent: true,
         phoneNumber: true,
+        transcripts: true,
       },
     });
+  }
+
+  static async create(workspaceId: string, input: CreateCallInput) {
+    return this.createCall(workspaceId, input);
   }
 
   /**
@@ -69,6 +81,10 @@ export class CallService {
         },
       },
     });
+  }
+
+  static async getById(workspaceId: string, callId: string) {
+    return this.getCallById(workspaceId, callId);
   }
 
   /**
@@ -93,6 +109,32 @@ export class CallService {
     });
   }
 
+  static async updateStatus(callId: string, status: string) {
+    return prisma.call.update({
+      where: { id: callId },
+      data: {
+        status,
+        endedAt: status === 'completed' || status === 'failed' ? new Date() : undefined,
+      },
+    });
+  }
+
+  static async finalizeCall(
+    callId: string,
+    data: { durationSeconds: number; summary?: string; sentiment?: string }
+  ) {
+    return prisma.call.update({
+      where: { id: callId },
+      data: {
+        status: 'completed',
+        durationSeconds: data.durationSeconds,
+        summary: data.summary,
+        transcriptStatus: 'completed',
+        endedAt: new Date(),
+      },
+    });
+  }
+
   /**
    * Add a new transcript speaker turn
    */
@@ -102,10 +144,14 @@ export class CallService {
         callId,
         speaker: turn.speaker,
         text: turn.text,
-        timestampMs: turn.timestampMs ?? 0,
+        timestampMs: turn.timestampMs ?? turn.startTimeOffsetMs ?? 0,
         confidence: turn.confidence ?? 0.95,
       },
     });
+  }
+
+  static async logTurn(callId: string, turn: AddTranscriptInput) {
+    return this.addTranscriptTurn(callId, turn);
   }
 
   /**
@@ -126,8 +172,9 @@ export class CallService {
     options?: {
       agentId?: string;
       phoneNumberId?: string;
-      direction?: CallDirection;
-      status?: CallStatus;
+      contactId?: string;
+      direction?: CallDirection | string;
+      status?: CallStatus | string;
       limit?: number;
       offset?: number;
     }
@@ -143,10 +190,28 @@ export class CallService {
       include: {
         agent: true,
         phoneNumber: true,
+        transcripts: {
+          orderBy: { timestampMs: 'asc' },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: options?.limit ?? 50,
       skip: options?.offset ?? 0,
     });
+  }
+
+  static async list(
+    workspaceId: string,
+    options?: {
+      agentId?: string;
+      phoneNumberId?: string;
+      contactId?: string;
+      direction?: CallDirection | string;
+      status?: CallStatus | string;
+      limit?: number;
+      offset?: number;
+    }
+  ) {
+    return this.listCalls(workspaceId, options);
   }
 }
