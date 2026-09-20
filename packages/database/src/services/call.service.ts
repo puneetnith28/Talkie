@@ -175,18 +175,30 @@ export class CallService {
       contactId?: string;
       direction?: CallDirection | string;
       status?: CallStatus | string;
+      search?: string;
       limit?: number;
       offset?: number;
     }
   ) {
+    const where: any = {
+      workspaceId,
+      ...(options?.agentId ? { agentId: options.agentId } : {}),
+      ...(options?.phoneNumberId ? { phoneNumberId: options.phoneNumberId } : {}),
+      ...(options?.direction && options.direction !== 'all' ? { direction: options.direction } : {}),
+      ...(options?.status && options.status !== 'all' ? { status: options.status } : {}),
+    };
+
+    if (options?.search && options.search.trim()) {
+      const q = options.search.trim();
+      where.OR = [
+        { fromNumber: { contains: q } },
+        { toNumber: { contains: q } },
+        { summary: { contains: q } },
+      ];
+    }
+
     return prisma.call.findMany({
-      where: {
-        workspaceId,
-        ...(options?.agentId ? { agentId: options.agentId } : {}),
-        ...(options?.phoneNumberId ? { phoneNumberId: options.phoneNumberId } : {}),
-        ...(options?.direction ? { direction: options.direction } : {}),
-        ...(options?.status ? { status: options.status } : {}),
-      },
+      where,
       include: {
         agent: true,
         phoneNumber: true,
@@ -200,6 +212,37 @@ export class CallService {
     });
   }
 
+  static async countCalls(
+    workspaceId: string,
+    options?: {
+      agentId?: string;
+      phoneNumberId?: string;
+      contactId?: string;
+      direction?: CallDirection | string;
+      status?: CallStatus | string;
+      search?: string;
+    }
+  ) {
+    const where: any = {
+      workspaceId,
+      ...(options?.agentId ? { agentId: options.agentId } : {}),
+      ...(options?.phoneNumberId ? { phoneNumberId: options.phoneNumberId } : {}),
+      ...(options?.direction && options.direction !== 'all' ? { direction: options.direction } : {}),
+      ...(options?.status && options.status !== 'all' ? { status: options.status } : {}),
+    };
+
+    if (options?.search && options.search.trim()) {
+      const q = options.search.trim();
+      where.OR = [
+        { fromNumber: { contains: q } },
+        { toNumber: { contains: q } },
+        { summary: { contains: q } },
+      ];
+    }
+
+    return prisma.call.count({ where });
+  }
+
   static async list(
     workspaceId: string,
     options?: {
@@ -208,6 +251,7 @@ export class CallService {
       contactId?: string;
       direction?: CallDirection | string;
       status?: CallStatus | string;
+      search?: string;
       limit?: number;
       offset?: number;
     }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CallService } from '@talkie/database';
 import { CallManager } from '@/lib/voice/call-manager';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const createCallSchema = z.object({
@@ -11,7 +12,8 @@ const createCallSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const body = await req.json();
 
     const parsed = createCallSchema.safeParse(body);
@@ -50,23 +52,48 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const { searchParams } = new URL(req.url);
     const agentId = searchParams.get('agentId') || undefined;
+    const phoneNumberId = searchParams.get('phoneNumberId') || undefined;
     const contactId = searchParams.get('contactId') || undefined;
+    const direction = searchParams.get('direction') || undefined;
+    const status = searchParams.get('status') || undefined;
+    const search = searchParams.get('search') || undefined;
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-    const calls = await CallService.list(workspaceId, {
-      agentId,
-      contactId,
-      limit,
-      offset,
-    });
+    const [calls, total] = await Promise.all([
+      CallService.list(workspaceId, {
+        agentId,
+        phoneNumberId,
+        contactId,
+        direction: direction && direction !== 'all' ? direction : undefined,
+        status: status && status !== 'all' ? status : undefined,
+        search: search && search.trim() ? search.trim() : undefined,
+        limit,
+        offset,
+      }),
+      CallService.countCalls(workspaceId, {
+        agentId,
+        phoneNumberId,
+        contactId,
+        direction: direction && direction !== 'all' ? direction : undefined,
+        status: status && status !== 'all' ? status : undefined,
+        search: search && search.trim() ? search.trim() : undefined,
+      }),
+    ]);
 
     return NextResponse.json({
       success: true,
       data: calls,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + calls.length < total,
+      },
     });
   } catch (error: any) {
     console.error('Error listing calls:', error);
