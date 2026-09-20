@@ -1,14 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Button } from '@talkie/ui';
+import { Menu, X } from 'lucide-react';
 
 export function MarketingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/75 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -47,25 +65,31 @@ export function MarketingNavbar() {
 
         {/* Mobile menu button */}
         <button
+          type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-zinc-400 hover:text-white p-2"
+          aria-expanded={mobileMenuOpen}
+          aria-label="Toggle navigation menu"
+          className="md:hidden text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-zinc-800/50 transition"
         >
-          {mobileMenuOpen ? '✕' : '☰'}
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-zinc-800 bg-zinc-950 p-4 space-y-3 animate-in slide-in-from-top-2">
-          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1">How It Works</a>
-          <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1">Features</a>
-          <a href="#code" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1">SDK & MCP</a>
-          <a href="#use-cases" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1">Use Cases</a>
-          <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1">Pricing</a>
-          <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1">Docs</Link>
-          <div className="pt-2 flex gap-2">
-            <Link href="/dashboard" className="flex-1">
-              <Button variant="primary" className="w-full text-xs">Get Started</Button>
+        <div className="md:hidden border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-xl p-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">How It Works</a>
+          <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Features</a>
+          <a href="#code" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">SDK & MCP</a>
+          <a href="#use-cases" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Use Cases</a>
+          <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Pricing</a>
+          <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Docs</Link>
+          <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2">
+            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full">
+              <Button variant="primary" className="w-full text-xs py-2">Start Free Trial →</Button>
+            </Link>
+            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full">
+              <Button variant="outline" className="w-full text-xs py-2">Console Dashboard</Button>
             </Link>
           </div>
         </div>

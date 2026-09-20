@@ -14,18 +14,19 @@ import {
   CreditCard,
   Key,
   BookOpen,
-  Sparkles,
+  Settings,
+  X,
 } from 'lucide-react';
 import { cn } from '@talkie/ui';
 
-interface NavItem {
+export interface NavItem {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
 }
 
-const navItems: NavItem[] = [
+export const navItems: NavItem[] = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Agents', href: '/dashboard/agents', icon: Bot },
   { name: 'Phone Numbers', href: '/dashboard/numbers', icon: Phone },
@@ -35,21 +36,43 @@ const navItems: NavItem[] = [
   { name: 'Webhooks', href: '/dashboard/webhooks', icon: Webhook },
   { name: 'Usage & Billing', href: '/dashboard/usage', icon: CreditCard },
   { name: 'API Keys', href: '/dashboard/settings/api-keys', icon: Key },
+  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+  className?: string;
+  showCloseButton?: boolean;
+}
+
+export function Sidebar({ onClose, className, showCloseButton = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-[#0a0c10] border-r border-white/[0.08] flex flex-col h-screen select-none">
+    <aside
+      className={cn(
+        'w-64 bg-[#0a0c10] border-r border-white/[0.08] flex flex-col h-full select-none',
+        className
+      )}
+    >
       {/* Brand Header */}
-      <div className="h-16 px-6 flex items-center justify-between border-b border-white/[0.08]">
-        <Link href="/dashboard" className="flex items-center gap-3">
+      <div className="h-16 px-6 flex items-center justify-between border-b border-white/[0.08] flex-shrink-0">
+        <Link href="/dashboard" onClick={onClose} className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             T
           </div>
           <span className="font-semibold text-white tracking-tight">Talkie Console</span>
         </Link>
+        {showCloseButton && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close navigation drawer"
+            className="md:hidden p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06] transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation Links */}
@@ -67,6 +90,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={onClose}
               className={cn(
                 'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all group',
                 isActive
@@ -97,6 +121,7 @@ export function Sidebar() {
         </div>
         <Link
           href="/docs"
+          onClick={onClose}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition-all"
         >
           <BookOpen className="w-4 h-4 text-neutral-400" />
@@ -105,7 +130,7 @@ export function Sidebar() {
       </nav>
 
       {/* Workspace & Mode Footer */}
-      <div className="p-4 border-t border-white/[0.08] bg-white/[0.01]">
+      <div className="p-4 border-t border-white/[0.08] bg-white/[0.01] flex-shrink-0">
         <div className="flex items-center justify-between text-xs text-neutral-400">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
