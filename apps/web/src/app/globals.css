@@ -43,3 +43,12 @@ body {
   animation-play-state: paused;
 }
 
+@keyframes growWidth {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+

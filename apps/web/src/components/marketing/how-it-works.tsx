@@ -1,112 +1,169 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Copy, Check, Terminal, Cpu, Phone, Radio, MessageSquare } from 'lucide-react';
-import { GridBackground, GlowBackground } from '@talkie/ui';
+import { Copy, Check, Terminal, Cpu, Phone, Radio, MessageSquare, Sparkles } from 'lucide-react';
 
 export function MarketingHowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [activeLang, setActiveLang] = useState<'ts' | 'py' | 'curl'>('ts');
 
   const steps = [
     {
       num: '01',
-      title: 'Provision a Carrier Number',
-      desc: 'Search US and Canada area codes and instantly bind numbers to your workspace in seconds.',
-      badge: 'Telephony Engine',
+      title: 'Provision Number',
+      desc: 'Instant carrier voice & SMS provisioning with global area codes.',
+      badge: 'Telephony',
       icon: Phone,
-      codeSnippet: `// 1. Provision phone number via TypeScript SDK
+      snippets: {
+        ts: `// 1. Provision phone number via TypeScript SDK
 const number = await talkie.numbers.provision({
   phoneNumber: '+14155550199',
-  agentId: 'ag_medical_triage',
+  agentId: 'ag_voice_support',
+  country: 'US',
+  capabilities: ['voice', 'sms'],
 });`,
+        py: `# 1. Provision phone number via Python SDK
+number = await talkie.numbers.provision(
+    phone_number="+14155550199",
+    agent_id="ag_voice_support",
+    country="US",
+    capabilities=["voice", "sms"]
+)`,
+        curl: `# 1. Provision phone number via cURL
+curl -X POST https://api.talkie.ai/v1/numbers/provision \\
+  -H "Authorization: Bearer $TALKIE_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"phoneNumber": "+14155550199", "agentId": "ag_voice_support"}'`,
+      },
     },
     {
       num: '02',
-      title: 'Define Voice Persona & Prompts',
-      desc: 'Configure neural voice timbre, interruption sensitivity, greeting first sentence, and system persona instructions.',
+      title: 'Define Voice Persona',
+      desc: 'Configure neural voice timbre, interruption sensitivity, & system prompt.',
       badge: 'Agent Studio',
       icon: Cpu,
-      codeSnippet: `// 2. Configure Agent Persona & LLM Prompt
+      snippets: {
+        ts: `// 2. Configure Agent Persona & LLM Prompt
 const agent = await talkie.agents.create({
-  name: 'Customer Support Lead',
+  name: 'Autonomous Billing Assistant',
   voiceProvider: 'elevenlabs',
   voiceId: 'rachel',
-  systemPrompt: 'You assist users with billing queries efficiently.',
+  temperature: 0.3,
+  systemPrompt: 'You assist customers with invoice inquiries courteously.',
 });`,
+        py: `# 2. Configure Agent Persona & LLM Prompt
+agent = await talkie.agents.create(
+    name="Autonomous Billing Assistant",
+    voice_provider="elevenlabs",
+    voice_id="rachel",
+    temperature=0.3,
+    system_prompt="You assist customers with invoice inquiries courteously."
+)`,
+        curl: `# 2. Create voice agent via cURL
+curl -X POST https://api.talkie.ai/v1/agents \\
+  -H "Authorization: Bearer $TALKIE_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"name": "Autonomous Billing Assistant", "voiceProvider": "elevenlabs", "voiceId": "rachel"}'`,
+      },
     },
     {
       num: '03',
-      title: 'Receive Calls & Real-Time Streams',
-      desc: 'When inbound calls ring, Talkie handles SIP audio, streams live transcript SSE events, and auto-records audio.',
+      title: 'Live Audio & Streams',
+      desc: 'Stream live bidirectional audio with sub-300ms latency SSE transcripts.',
       badge: 'Real-Time PubSub',
       icon: Radio,
-      codeSnippet: `// 3. Listen to live call transcript stream (SSE)
-const eventSource = new EventSource('/api/v1/realtime');
-eventSource.addEventListener('call.transcript.turn', (e) => {
-  const turn = JSON.parse(e.data);
-  console.log(\`[\${turn.speaker}]: \${turn.text}\`);
+      snippets: {
+        ts: `// 3. Subscribe to real-time call transcript stream (SSE)
+const stream = talkie.realtime.streamCalls({ agentId: 'ag_voice_support' });
+
+stream.on('transcript.turn', (event) => {
+  console.log(\`[\${event.speaker}]: \${event.text} (latency: \${event.latencyMs}ms)\`);
 });`,
+        py: `# 3. Subscribe to real-time call transcript stream
+async for event in talkie.realtime.stream_calls(agent_id="ag_voice_support"):
+    if event.type == "transcript.turn":
+        print(f"[{event.speaker}]: {event.text} (latency: {event.latency_ms}ms)")`,
+        curl: `# 3. Stream real-time events over SSE
+curl -N https://api.talkie.ai/v1/realtime/stream \\
+  -H "Authorization: Bearer $TALKIE_API_KEY" \\
+  -H "Accept: text/event-stream"`,
+      },
     },
     {
       num: '04',
-      title: 'Automate Omnichannel SMS & Webhooks',
-      desc: 'Trigger follow-up text messages, sync CRM contacts, and dispatch HMAC-signed webhooks to your servers.',
-      badge: 'Omnichannel & Webhooks',
+      title: 'Automate SMS & Hooks',
+      desc: 'Dispatch HMAC-signed webhooks & instant post-call SMS confirmations.',
+      badge: 'Omnichannel',
       icon: MessageSquare,
-      codeSnippet: `// 4. Send post-call SMS confirmation
+      snippets: {
+        ts: `// 4. Send post-call confirmation SMS & trigger webhook
 await talkie.messages.send({
   fromNumber: '+14155550199',
   toNumber: '+14155550142',
-  body: 'Your booking has been confirmed for tomorrow at 10:00 AM.',
+  body: 'Your appointment is confirmed for tomorrow at 10:00 AM EST.',
 });`,
+        py: `# 4. Send post-call confirmation SMS
+await talkie.messages.send(
+    from_number="+14155550199",
+    to_number="+14155550142",
+    body="Your appointment is confirmed for tomorrow at 10:00 AM EST."
+)`,
+        curl: `# 4. Send SMS message via cURL
+curl -X POST https://api.talkie.ai/v1/messages \\
+  -H "Authorization: Bearer $TALKIE_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"fromNumber": "+14155550199", "toNumber": "+14155550142", "body": "Appointment confirmed"}'`,
+      },
     },
   ];
 
-  // Auto-cycle through the 4 steps every 4.5 seconds unless hovered/paused
+  // Auto-cycle through the 4 steps every 5 seconds unless hovered/paused
   useEffect(() => {
     if (isPaused) return;
 
     const timer = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % steps.length);
-    }, 4500);
+    }, 5000);
 
     return () => clearInterval(timer);
   }, [isPaused, steps.length]);
 
+  const currentSnippet = steps[activeStep].snippets[activeLang];
+
   const copyCode = () => {
-    navigator.clipboard.writeText(steps[activeStep].codeSnippet);
+    navigator.clipboard.writeText(currentSnippet);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <section id="how-it-works" className="relative py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-sans overflow-hidden">
-      {/* Architecture Technical Grid System */}
-      <GridBackground size={32} variant="default" mask="radial" opacity={0.4} />
-      <GlowBackground position="center" variant="primary" size={650} blur={150} opacity={0.12} />
-      
-      <div className="relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-            Carrier-Grade Architecture
+    <section id="how-it-works" className="relative py-20 sm:py-28 bg-[#050406] overflow-hidden">
+      {/* Background ambient glowing gradient */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[350px] bg-pink-600/[0.07] rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header Section */}
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold mb-3">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Developer-First Telephony</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            How Talkie Works in 4 Steps
           </h2>
-          <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            How Talkie Powers Autonomous Voice
-          </h3>
-          <p className="text-sm text-zinc-400 mt-3">
-            Four simple steps to bring interactive voice calling and omnichannel SMS into your agent workflows.
+          <p className="text-sm sm:text-base text-neutral-400 mt-3 font-normal">
+            From provisioning carrier numbers to deploying autonomous voice pipelines in minutes.
           </p>
         </div>
 
-      <div
-        className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-      >
-        {/* Step selector list */}
-        <div className="lg:col-span-5 space-y-3.5">
+        {/* 4 Steps in a Single Horizontal Line */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 mb-6"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           {steps.map((s, idx) => {
             const isActive = activeStep === idx;
             const Icon = s.icon;
@@ -115,91 +172,126 @@ await talkie.messages.send({
                 key={s.num}
                 type="button"
                 onClick={() => setActiveStep(idx)}
-                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 relative overflow-hidden block cursor-pointer ${
+                className={`relative text-left p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer ${
                   isActive
-                    ? 'bg-zinc-900 border-blue-500/60 shadow-xl shadow-blue-500/10'
-                    : 'bg-zinc-950/70 border-zinc-800/80 hover:border-zinc-700 hover:bg-zinc-900/50'
+                    ? 'bg-neutral-900/90 border-pink-500/50 shadow-xl shadow-pink-500/10'
+                    : 'bg-neutral-950/60 border-white/[0.08] hover:border-white/[0.18] hover:bg-neutral-900/40'
                 }`}
               >
-                {/* Active Step Animated Progress Bar */}
-                {isActive && !isPaused && (
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-500/20 overflow-hidden">
+                {/* Active Step Linear Animated Progress Bar */}
+                {isActive && (
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-pink-500/20 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-400"
+                      className="h-full bg-gradient-to-r from-pink-500 to-rose-400"
                       style={{
-                        animation: 'growWidth 4.5s linear infinite',
+                        animation: isPaused ? 'none' : 'growWidth 5s linear infinite',
+                        width: isPaused ? '100%' : undefined,
                       }}
                     />
                   </div>
                 )}
 
-                <div className="flex items-center justify-between mb-2">
+                {/* Top Row: Step Tag + Badge */}
+                <div className="flex items-center justify-between mb-3 w-full">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                         isActive
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold'
-                          : 'bg-zinc-800 text-zinc-400'
+                          ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
+                          : 'bg-white/[0.05] text-neutral-400'
                       }`}
                     >
-                      <Icon className="size-3.5" />
+                      <Icon className="w-3.5 h-3.5" />
                     </div>
-                    <span className={`text-xs font-mono font-bold ${isActive ? 'text-blue-400' : 'text-zinc-500'}`}>
+                    <span className={`text-xs font-mono font-bold tracking-wider ${isActive ? 'text-pink-400' : 'text-neutral-500'}`}>
                       STEP {s.num}
                     </span>
                   </div>
 
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60">
+                  <span className="text-[9px] uppercase font-mono tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] text-neutral-400 border border-white/[0.08]">
                     {s.badge}
                   </span>
                 </div>
 
-                <div className={`text-base font-bold mb-1 tracking-tight transition-colors ${isActive ? 'text-white' : 'text-zinc-300'}`}>
-                  {s.title}
+                {/* Step Title & Minimal Summary */}
+                <div>
+                  <h3 className={`text-sm sm:text-base font-bold tracking-tight mb-1.5 transition-colors ${isActive ? 'text-white' : 'text-neutral-300'}`}>
+                    {s.title}
+                  </h3>
+                  <p className="text-xs text-neutral-400 leading-relaxed font-sans line-clamp-2">
+                    {s.desc}
+                  </p>
                 </div>
-                <div className="text-xs text-zinc-400 leading-relaxed font-normal">{s.desc}</div>
               </button>
             );
           })}
         </div>
 
-        {/* Code Snippet Box */}
-        <div className="lg:col-span-7">
-          <div className="rounded-3xl bg-zinc-950 border border-zinc-800/90 p-6 shadow-2xl relative overflow-hidden">
-            {/* Ambient terminal top light */}
-            <div className="absolute top-0 right-1/4 w-40 h-20 bg-blue-500/10 blur-2xl pointer-events-none" />
+        {/* Full-Width Interactive Developer Terminal Below the 4 Steps */}
+        <div
+          className="w-full rounded-2xl sm:rounded-3xl bg-[#0b080d]/95 border border-white/[0.12] shadow-2xl backdrop-blur-2xl relative overflow-hidden"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Top subtle pink glow */}
+          <div className="absolute top-0 left-1/3 -translate-x-1/2 w-1/2 h-16 bg-pink-500/10 blur-xl pointer-events-none" />
 
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4 text-zinc-400 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/70 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-amber-500/70 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500/70 inline-block" />
-                <div className="flex items-center gap-1.5 ml-2 text-zinc-300 font-semibold text-xs">
-                  <Terminal className="size-3.5 text-blue-400" />
-                  <span>{steps[activeStep].title}</span>
-                </div>
+          {/* Terminal Window Header */}
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/[0.08] bg-black/40 text-xs">
+            {/* Left Window Controls + Step Indicator */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
               </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] text-zinc-500 font-mono">TypeScript SDK</span>
-                <button
-                  type="button"
-                  onClick={copyCode}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-850 hover:bg-zinc-800 text-zinc-300 hover:text-white transition text-xs border border-zinc-750 cursor-pointer"
-                >
-                  {copied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3 text-zinc-400" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
-                </button>
+              <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/[0.1] text-neutral-300 font-semibold font-mono text-xs">
+                <Terminal className="w-3.5 h-3.5 text-pink-400" />
+                <span>talkie.{steps[activeStep].title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.execute()</span>
               </div>
             </div>
 
-            <pre className="font-mono text-xs text-zinc-200 leading-loose overflow-x-auto min-h-[140px] p-2 bg-zinc-900/40 rounded-xl border border-zinc-850 transition-all duration-300">
-              <code>{steps[activeStep].codeSnippet}</code>
+            {/* Right Controls: Language Selector + Copy Button */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Language Switcher Tabs */}
+              <div className="flex items-center bg-white/[0.04] p-0.5 rounded-lg border border-white/[0.08]">
+                {(['ts', 'py', 'curl'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setActiveLang(lang)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition uppercase ${
+                      activeLang === lang
+                        ? 'bg-pink-500/20 text-pink-300 font-bold border border-pink-500/30'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {lang === 'ts' ? 'TypeScript' : lang === 'py' ? 'Python' : 'cURL'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Copy Code Button */}
+              <button
+                type="button"
+                onClick={copyCode}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-neutral-200 hover:text-white transition text-xs font-medium border border-white/[0.1] active:scale-95 cursor-pointer"
+                title="Copy code to clipboard"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-pink-400" /> : <Copy className="w-3.5 h-3.5 text-neutral-400" />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Terminal Code Body */}
+          <div className="p-4 sm:p-6 font-mono text-xs sm:text-sm text-neutral-200 leading-relaxed overflow-x-auto min-h-[160px] bg-black/20">
+            <pre className="transition-opacity duration-200">
+              <code>{currentSnippet}</code>
             </pre>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
 }
