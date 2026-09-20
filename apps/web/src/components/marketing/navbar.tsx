@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '@talkie/ui';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 
 export function MarketingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,40 +36,49 @@ export function MarketingNavbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#08090b]/85 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo */}
+    <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0709]/85 backdrop-blur-2xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+        {/* Brand Logo: Talkie */}
         <Link href="/" className="flex items-center gap-2.5 group cursor-pointer">
-          <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black text-base shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition duration-200">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-600 via-rose-500 to-pink-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-pink-500/25 group-hover:scale-105 transition">
             T
           </div>
-          <span className="font-bold text-lg text-white tracking-tight">Talkie</span>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="font-bold text-xl sm:text-2xl text-white tracking-tight">Talkie</span>
+          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
             v1.0
           </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-zinc-400">
-          <a href="#how-it-works" className="hover:text-white transition">How It Works</a>
-          <a href="#features" className="hover:text-white transition">Features</a>
-          <a href="#code" className="hover:text-white transition">SDK & MCP</a>
-          <a href="#use-cases" className="hover:text-white transition">Use Cases</a>
-          <a href="#pricing" className="hover:text-white transition">Pricing</a>
-          <Link href="/docs" className="hover:text-white transition">Docs</Link>
+        {/* Desktop Nav Links */}
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-300">
+          <a href="#features" className="hover:text-white transition">
+            Features
+          </a>
+          <Link href="/docs" className="hover:text-white transition">
+            Docs
+          </Link>
+          <a href="#pricing" className="hover:text-white transition">
+            Pricing
+          </a>
+          <a href="#blog" className="hover:text-white transition">
+            Blog
+          </a>
         </nav>
 
-        {/* CTA Buttons */}
+        {/* Right CTA */}
         <div className="hidden sm:flex items-center gap-3">
-          <Link href="/dashboard">
-            <Button variant="outline" className="text-xs py-1.5 px-3">
-              Dashboard
-            </Button>
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded-full border border-white/[0.12] bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/[0.25] text-xs font-semibold text-white transition active:scale-95"
+          >
+            Dashboard
           </Link>
-          <Link href="/dashboard">
-            <Button variant="primary" className="text-xs py-1.5 px-3.5 shadow-md shadow-emerald-500/20">
-              Start Free Trial →
-            </Button>
+          <Link
+            href="/sign-up"
+            className="px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-lg shadow-pink-500/25 active:scale-95 transition"
+          >
+            <span>Get Started</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
@@ -86,62 +94,52 @@ export function MarketingNavbar() {
         </button>
       </div>
 
-      {/* Mobile Drawer Overlay with Backdrop Blur & Scroll Lock */}
+      {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-white/[0.08] bg-[#08090b]/98 backdrop-blur-2xl p-5 space-y-1 animate-in slide-in-from-top-3 fade-in duration-250 ease-out shadow-2xl">
-          <a
-            href="#how-it-works"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
-          >
-            How It Works
-          </a>
+        <div className="md:hidden border-b border-white/[0.08] bg-[#0a0709]/98 backdrop-blur-2xl p-5 space-y-2 animate-in slide-in-from-top-3 fade-in duration-200 shadow-2xl">
           <a
             href="#features"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.06] transition"
           >
             Features
-          </a>
-          <a
-            href="#code"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
-          >
-            SDK & MCP
-          </a>
-          <a
-            href="#use-cases"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
-          >
-            Use Cases
-          </a>
-          <a
-            href="#pricing"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
-          >
-            Pricing
           </a>
           <Link
             href="/docs"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.06] transition"
           >
             Docs
           </Link>
+          <a
+            href="#pricing"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.06] transition"
+          >
+            Pricing
+          </a>
+          <a
+            href="#blog"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.06] transition"
+          >
+            Blog
+          </a>
 
           <div className="pt-4 mt-2 border-t border-white/[0.08] flex flex-col gap-2.5">
-            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full">
-              <Button variant="primary" className="w-full h-11 text-xs font-bold shadow-lg shadow-emerald-500/20">
-                Start Free Trial →
-              </Button>
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center h-11 rounded-full border border-white/[0.15] bg-white/[0.03] text-xs font-semibold text-white"
+            >
+              Dashboard
             </Link>
-            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full">
-              <Button variant="outline" className="w-full h-11 text-xs font-semibold">
-                Console Dashboard
-              </Button>
+            <Link
+              href="/sign-up"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center h-11 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold shadow-lg shadow-pink-500/20"
+            >
+              Get Started →
             </Link>
           </div>
         </div>
