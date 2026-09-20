@@ -75,6 +75,103 @@ export class CallManager {
     await coordinator.start();
     await CallService.updateStatus(callRecord.id, 'in-progress');
 
+    // Log initial greeting turn if configured
+    if (agent.beginMessage) {
+      await CallService.logTurn(callRecord.id, {
+        speaker: 'agent',
+        text: agent.beginMessage,
+        startTimeOffsetMs: 50,
+      }).catch(() => {});
+    }
+
+    return {
+      call: callRecord,
+      session: coordinator,
+    };
+  }
+
+  /**
+   * Handle an inbound call routed to a workspace phone number
+   */
+  static async startInboundCall(options: {
+    workspaceId?: string;
+    from: string; // External caller E.164
+    to: string; // Dialed Talkie number E.164
+    providerCallId?: string;
+  }) {
+    const { from, to, providerCallId } = options;
+
+    const dialedNumber = await NumberService.getByPhoneNumber(to);
+    if (!dialedNumber) {
+      throw new Error(`Dialed phone number ${to} is not configured on Talkie`);
+    }
+
+    const workspaceId = dialedNumber.workspaceId;
+
+    if (!dialedNumber.agentId) {
+      throw new Error(`Phone number ${to} has no voice agent assigned`);
+    }
+
+    const agent = await AgentService.getById(workspaceId, dialedNumber.agentId);
+    if (!agent) {
+      throw new Error(`Assigned agent not found: ${dialedNumber.agentId}`);
+    }
+
+    // Resolve caller contact
+    let contact = await ContactService.getByPhoneNumber(workspaceId, from);
+    if (!contact) {
+      contact = await ContactService.create(workspaceId, {
+        phoneNumber: from,
+        name: `Caller (${from})`,
+      });
+    }
+
+    // Create DB Call record
+    const callRecord = await CallService.create(workspaceId, {
+      agentId: agent.id,
+      phoneNumberId: dialedNumber.id,
+      contactId: contact.id,
+      direction: 'inbound',
+      callerNumber: from,
+      calleeNumber: to,
+      status: 'in-progress',
+      providerCallId: providerCallId || `call_in_${Date.now()}`,
+    });
+
+    const sessionConfig: VoiceSessionConfig = {
+      callId: callRecord.id,
+      workspaceId,
+      agentId: agent.id,
+      agentName: agent.name,
+      systemPrompt: agent.systemPrompt,
+      beginMessage: agent.beginMessage || undefined,
+      voice: agent.voice,
+      language: agent.language,
+      voiceSpeed: agent.voiceSpeed,
+      interruptionSensitivity: agent.interruptionSensitivity,
+      enableBackchannel: agent.enableBackchannel,
+      maxSilenceMs: agent.maxSilenceMs,
+      callerNumber: from,
+      calleeNumber: to,
+      direction: 'inbound',
+    };
+
+    const coordinator = new SessionCoordinator(sessionConfig, {
+      callProvider: this.callProvider,
+    });
+
+    this.activeSessions.set(callRecord.id, coordinator);
+    await coordinator.start();
+
+    // Log initial greeting turn
+    if (agent.beginMessage) {
+      await CallService.logTurn(callRecord.id, {
+        speaker: 'agent',
+        text: agent.beginMessage,
+        startTimeOffsetMs: 50,
+      }).catch(() => {});
+    }
+
     return {
       call: callRecord,
       session: coordinator,
