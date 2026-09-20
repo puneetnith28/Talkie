@@ -12,6 +12,7 @@ export default tseslint.config(
       '**/coverage/**',
       '**/.turbo/**',
       '**/prisma/generated/**',
+      '**/next-env.d.ts',
       'tsconfig.tsbuildinfo',
     ],
   },
