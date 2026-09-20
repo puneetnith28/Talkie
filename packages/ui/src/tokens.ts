@@ -124,9 +124,27 @@ export const tokens = {
   },
 
   animationDurations: {
+    instant: '50ms',
     fast: '150ms',
     normal: '250ms',
-    slow: '400ms',
+    deliberate: '350ms',
+    slow: '500ms',
+    ambient: '1200ms',
+  },
+
+  animationEasings: {
+    standard: 'cubic-bezier(0.2, 0.0, 0, 1.0)',
+    emphasized: 'cubic-bezier(0.05, 0.7, 0.1, 1.0)',
+    decelerate: 'cubic-bezier(0.0, 0.0, 0.2, 1.0)',
+    accelerate: 'cubic-bezier(0.3, 0.0, 1.0, 1.0)',
+    spring: 'cubic-bezier(0.34, 1.56, 0.64, 1.0)',
+  },
+
+  transitions: {
+    default: 'all 250ms cubic-bezier(0.2, 0.0, 0, 1.0)',
+    fast: 'all 150ms cubic-bezier(0.2, 0.0, 0, 1.0)',
+    transform: 'transform 250ms cubic-bezier(0.05, 0.7, 0.1, 1.0)',
+    opacity: 'opacity 200ms cubic-bezier(0.2, 0.0, 0, 1.0)',
   },
 } as const;
 

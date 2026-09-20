@@ -28,4 +28,14 @@ describe('Design Tokens Typography System', () => {
     expect(tokens.colors.borderHigh).toBe('rgba(255, 255, 255, 0.22)');
     expect(tokens.colors.contrast.borderMedium).toBe('rgba(255, 255, 255, 0.12)');
   });
+
+  it('defines standardized animation durations and easing tokens', () => {
+    expect(tokens.animationDurations.instant).toBe('50ms');
+    expect(tokens.animationDurations.fast).toBe('150ms');
+    expect(tokens.animationDurations.normal).toBe('250ms');
+    expect(tokens.animationDurations.slow).toBe('500ms');
+    expect(tokens.animationEasings.standard).toBe('cubic-bezier(0.2, 0.0, 0, 1.0)');
+    expect(tokens.animationEasings.emphasized).toBe('cubic-bezier(0.05, 0.7, 0.1, 1.0)');
+    expect(tokens.animationEasings.spring).toBe('cubic-bezier(0.34, 1.56, 0.64, 1.0)');
+  });
 });
