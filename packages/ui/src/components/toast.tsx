@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '../utils';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
