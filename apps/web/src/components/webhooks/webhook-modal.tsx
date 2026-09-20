@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Card, Badge } from '@talkie/ui';
+import { Button, Input, Card } from '@talkie/ui';
 import { Webhook, Loader2, AlertCircle, Check } from 'lucide-react';
+import { webhookValidationSchema } from '@/lib/validations';
 
 const AVAILABLE_EVENTS = [
   { id: '*', label: 'All Events (*)' },
@@ -32,28 +33,52 @@ export function WebhookModal({
     existingWebhook ? JSON.parse(existingWebhook.eventsJson || '["*"]') : ['*']
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const toggleEvent = (eventId: string) => {
     if (eventId === '*') {
       setSelectedEvents(['*']);
+      setFieldErrors((prev) => ({ ...prev, events: '' }));
       return;
     }
     const withoutAll = selectedEvents.filter((e) => e !== '*');
+    let next: string[];
     if (withoutAll.includes(eventId)) {
-      const next = withoutAll.filter((e) => e !== eventId);
-      setSelectedEvents(next.length === 0 ? ['*'] : next);
+      next = withoutAll.filter((e) => e !== eventId);
+      if (next.length === 0) next = ['*'];
     } else {
-      setSelectedEvents([...withoutAll, eventId]);
+      next = [...withoutAll, eventId];
     }
+    setSelectedEvents(next);
+    setFieldErrors((prev) => ({ ...prev, events: '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({});
+    setGeneralError(null);
+
+    const parseResult = webhookValidationSchema.safeParse({
+      url: url.trim(),
+      events: selectedEvents,
+    });
+
+    if (!parseResult.success) {
+      const errors: Record<string, string> = {};
+      parseResult.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        if (field && !errors[field]) {
+          errors[field] = err.message;
+        }
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
     setLoading(true);
-    setError(null);
 
     try {
       const endpoint = existingWebhook
@@ -64,10 +89,7 @@ export function WebhookModal({
       const res = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url,
-          events: selectedEvents,
-        }),
+        body: JSON.stringify(parseResult.data),
       });
 
       const data = await res.json();
@@ -76,14 +98,14 @@ export function WebhookModal({
       onSuccess(data.data);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Operation failed');
+      setGeneralError(err.message || 'Operation failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <Card className="w-full max-w-lg bg-[#0a0c10] border-white/[0.1] shadow-2xl p-6 space-y-5">
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
           <div className="flex items-center gap-3">
@@ -97,15 +119,19 @@ export function WebhookModal({
               <p className="text-xs text-neutral-400">Receive real-time HTTP events with HMAC signing</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-neutral-400 hover:text-white text-sm font-medium">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="text-neutral-400 hover:text-white text-sm font-medium transition disabled:opacity-50"
+          >
             ✕
           </button>
         </div>
 
-        {error && (
+        {generalError && (
           <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            <span>{error}</span>
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{generalError}</span>
           </div>
         )}
 
@@ -116,12 +142,20 @@ export function WebhookModal({
             </label>
             <Input
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value);
+                if (fieldErrors.url) setFieldErrors((prev) => ({ ...prev, url: '' }));
+              }}
               placeholder="https://api.yourdomain.com/webhooks/talkie"
-              required
+              disabled={loading}
               type="url"
-              className="bg-black/40 border-white/[0.08] text-xs h-9 font-mono"
+              className={`bg-black/40 border-white/[0.08] text-xs h-9 font-mono ${
+                fieldErrors.url ? 'border-red-500/60 focus:border-red-500' : ''
+              }`}
             />
+            {fieldErrors.url && (
+              <p className="text-[11px] text-red-400">{fieldErrors.url}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -130,10 +164,12 @@ export function WebhookModal({
               {AVAILABLE_EVENTS.map((evt) => {
                 const isChecked = selectedEvents.includes(evt.id);
                 return (
-                  <div
+                  <button
                     key={evt.id}
+                    type="button"
+                    disabled={loading}
                     onClick={() => toggleEvent(evt.id)}
-                    className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between ${
+                    className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between text-left ${
                       isChecked
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-white'
                         : 'border-white/[0.08] bg-white/[0.02] text-neutral-400 hover:border-white/[0.2]'
@@ -141,21 +177,30 @@ export function WebhookModal({
                   >
                     <span className="font-mono text-[11px] truncate">{evt.label}</span>
                     {isChecked && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />}
-                  </div>
+                  </button>
                 );
               })}
             </div>
+            {fieldErrors.events && (
+              <p className="text-[11px] text-red-400">{fieldErrors.events}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
-            <Button variant="outline" type="button" onClick={onClose} disabled={loading} className="text-xs">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="text-xs"
+            >
               Cancel
             </Button>
             <Button
               variant="primary"
               type="submit"
-              disabled={loading || !url}
-              className="text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-semibold flex items-center gap-1.5"
+              disabled={loading}
+              className="text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/10"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>{existingWebhook ? 'Save Changes' : 'Create Webhook'}</span>

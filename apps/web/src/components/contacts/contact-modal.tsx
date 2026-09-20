@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button, Input, Card, Textarea } from '@talkie/ui';
 import { Users, Loader2, AlertCircle } from 'lucide-react';
+import { contactValidationSchema } from '@/lib/validations';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -23,14 +24,37 @@ export function ContactModal({
   const [company, setCompany] = useState(existingContact?.company || '');
   const [notes, setNotes] = useState(existingContact?.notes || '');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({});
+    setGeneralError(null);
+
+    const parseResult = contactValidationSchema.safeParse({
+      phoneNumber,
+      name,
+      email: email.trim() || undefined,
+      company: company.trim() || undefined,
+      notes: notes.trim() || undefined,
+    });
+
+    if (!parseResult.success) {
+      const errors: Record<string, string> = {};
+      parseResult.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        if (field && !errors[field]) {
+          errors[field] = err.message;
+        }
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
     setLoading(true);
-    setError(null);
 
     try {
       const url = existingContact
@@ -41,13 +65,7 @@ export function ContactModal({
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phoneNumber,
-          name,
-          email: email || undefined,
-          company: company || undefined,
-          notes: notes || undefined,
-        }),
+        body: JSON.stringify(parseResult.data),
       });
 
       const data = await res.json();
@@ -56,14 +74,14 @@ export function ContactModal({
       onSuccess(data.data);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Operation failed');
+      setGeneralError(err.message || 'Operation failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <Card className="w-full max-w-md bg-[#0a0c10] border-white/[0.1] shadow-2xl p-6 space-y-5">
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
           <div className="flex items-center gap-3">
@@ -77,15 +95,19 @@ export function ContactModal({
               <p className="text-xs text-neutral-400">Manage caller and messaging profiles</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-neutral-400 hover:text-white text-sm font-medium">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="text-neutral-400 hover:text-white text-sm font-medium transition disabled:opacity-50"
+          >
             ✕
           </button>
         </div>
 
-        {error && (
+        {generalError && (
           <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            <span>{error}</span>
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{generalError}</span>
           </div>
         )}
 
@@ -96,22 +118,40 @@ export function ContactModal({
             </label>
             <Input
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e) => {
+                setPhoneNumber(e.target.value);
+                if (fieldErrors.phoneNumber) setFieldErrors((prev) => ({ ...prev, phoneNumber: '' }));
+              }}
               placeholder="+14155550199"
-              disabled={!!existingContact}
-              required
-              className="bg-black/40 border-white/[0.08] text-xs h-9 font-mono"
+              disabled={!!existingContact || loading}
+              className={`bg-black/40 border-white/[0.08] text-xs h-9 font-mono ${
+                fieldErrors.phoneNumber ? 'border-red-500/60 focus:border-red-500' : ''
+              }`}
             />
+            {fieldErrors.phoneNumber && (
+              <p className="text-[11px] text-red-400">{fieldErrors.phoneNumber}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-300">Full Name</label>
+            <label className="text-xs font-semibold text-neutral-300">
+              Full Name <span className="text-emerald-400">*</span>
+            </label>
             <Input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: '' }));
+              }}
               placeholder="Sarah Connor"
-              className="bg-black/40 border-white/[0.08] text-xs h-9"
+              disabled={loading}
+              className={`bg-black/40 border-white/[0.08] text-xs h-9 ${
+                fieldErrors.name ? 'border-red-500/60 focus:border-red-500' : ''
+              }`}
             />
+            {fieldErrors.name && (
+              <p className="text-[11px] text-red-400">{fieldErrors.name}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -119,11 +159,20 @@ export function ContactModal({
               <label className="text-xs font-semibold text-neutral-300">Email</label>
               <Input
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: '' }));
+                }}
                 placeholder="sarah@example.com"
                 type="email"
-                className="bg-black/40 border-white/[0.08] text-xs h-9"
+                disabled={loading}
+                className={`bg-black/40 border-white/[0.08] text-xs h-9 ${
+                  fieldErrors.email ? 'border-red-500/60' : ''
+                }`}
               />
+              {fieldErrors.email && (
+                <p className="text-[11px] text-red-400">{fieldErrors.email}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-neutral-300">Company</label>
@@ -131,6 +180,7 @@ export function ContactModal({
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Acme Corp"
+                disabled={loading}
                 className="bg-black/40 border-white/[0.08] text-xs h-9"
               />
             </div>
@@ -143,19 +193,26 @@ export function ContactModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="VIP Client / Support Tier 1"
               rows={2}
+              disabled={loading}
               className="bg-black/40 border-white/[0.08] text-xs resize-none"
             />
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
-            <Button variant="outline" type="button" onClick={onClose} disabled={loading} className="text-xs">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="text-xs"
+            >
               Cancel
             </Button>
             <Button
               variant="primary"
               type="submit"
-              disabled={loading || !phoneNumber}
-              className="text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-semibold flex items-center gap-1.5"
+              disabled={loading}
+              className="text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/10"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>{existingContact ? 'Save Changes' : 'Create Contact'}</span>
