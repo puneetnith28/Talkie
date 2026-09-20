@@ -20,6 +20,15 @@
   }
 }
 
+@keyframes growWidth {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
 .animate-pulse-slow {
   animation: pulse-slow 6s ease-in-out infinite;
 }
