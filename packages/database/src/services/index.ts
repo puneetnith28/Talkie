@@ -6,3 +6,6 @@ export * from './contact.service';
 export * from './message.service';
 export * from './call.service';
 export * from './webhook.service';
+export * from './usage.service';
+export * from './audit.service';
+export * from './idempotency.service';
