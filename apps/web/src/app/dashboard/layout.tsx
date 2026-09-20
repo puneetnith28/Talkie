@@ -1,7 +1,8 @@
 import React from 'react';
+import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Button } from '@talkie/ui';
-import { Sparkles, Terminal, Bell } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -16,10 +17,10 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-white/[0.08] bg-[#0a0c10]/80 backdrop-blur-md px-8 flex items-center justify-between z-10 flex-shrink-0">
+        <header className="h-16 border-b border-white/[0.08] bg-[#0a0c10]/80 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between z-10 flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs font-mono text-neutral-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>Workspace: Talkie AI Labs</span>
             </div>
           </div>
@@ -29,12 +30,12 @@ export default function DashboardLayout({
               <span>Credits: $50.00</span>
             </div>
 
-            <a href="/docs">
+            <Link href="/docs">
               <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5">
                 <Terminal className="w-3.5 h-3.5" />
                 <span>API Docs</span>
               </Button>
-            </a>
+            </Link>
 
             <div className="w-8 h-8 rounded-full bg-neutral-800 border border-white/[0.1] flex items-center justify-center text-xs font-medium text-neutral-200">
               AR
