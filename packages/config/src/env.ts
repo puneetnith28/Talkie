@@ -15,6 +15,15 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().default('file:./dev.db'),
   REDIS_URL: z.string().optional(),
 
+  // Clerk Authentication
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+  CLERK_SECRET_KEY: z.string().optional(),
+  CLERK_WEBHOOK_SECRET: z.string().optional(),
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default('/sign-in'),
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default('/sign-up'),
+  NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: z.string().default('/dashboard'),
+  NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: z.string().default('/dashboard'),
+
   // Authentication & Security
   AUTH_SECRET: z.string().min(16).default('talkie_development_auth_secret_32chars_long'),
   JWT_EXPIRES_IN: z.string().default('7d'),
