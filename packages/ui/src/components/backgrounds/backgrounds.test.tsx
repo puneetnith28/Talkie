@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import { GridBackground, PageBackground } from './index';
+import { GridBackground, PageBackground, DotBackground } from './index';
 
 describe('Background Components', () => {
   describe('GridBackground', () => {
@@ -30,6 +30,15 @@ describe('Background Components', () => {
       const html = renderToString(<PageBackground variant="elevated" fixed />);
       expect(html).toContain('fixed');
       expect(html).toContain('bg-gradient-to-b');
+    });
+  });
+
+  describe('DotBackground', () => {
+    it('renders with custom spacing and dot radius', () => {
+      const html = renderToString(<DotBackground dotSize={2} spacing={32} variant="accent" mask="center-glow" />);
+      expect(html).toContain('background-size:32px 32px');
+      expect(html).toContain('pointer-events-none');
+      expect(html).toContain('rgba(38, 182, 90, 0.35)');
     });
   });
 });
