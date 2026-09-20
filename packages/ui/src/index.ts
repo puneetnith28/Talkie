@@ -13,3 +13,4 @@ export * from './components/switch';
 export * from './components/toast';
 export * from './components/empty-state';
 export * from './components/backgrounds';
+export * from './components/scroll-reveal';

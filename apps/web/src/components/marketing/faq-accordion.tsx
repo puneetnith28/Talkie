@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ScrollReveal } from '@talkie/ui';
 
 export function MarketingFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -30,14 +31,16 @@ export function MarketingFAQ() {
 
   return (
     <section id="pricing" className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center mb-12">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-          Frequently Asked Questions
-        </h2>
-        <h3 className="text-3xl font-black text-white tracking-tight">
-          Everything You Need to Know
-        </h3>
-      </div>
+      <ScrollReveal direction="up" distance={20}>
+        <div className="text-center mb-12">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+            Frequently Asked Questions
+          </h2>
+          <h3 className="text-3xl font-black text-white tracking-tight">
+            Everything You Need to Know
+          </h3>
+        </div>
+      </ScrollReveal>
 
       <div className="space-y-3">
         {faqs.map((faq, idx) => {

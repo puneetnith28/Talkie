@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { ScrollReveal } from '@talkie/ui';
 
 export function MarketingUseCases() {
   const cases = [
@@ -31,35 +34,36 @@ export function MarketingUseCases() {
   return (
     <section id="use-cases" className="py-20 bg-zinc-950/40 border-t border-zinc-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-            Production Applications
-          </h2>
-          <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            Engineered for High-Scale Enterprise Voice
-          </h3>
-          <p className="text-sm text-zinc-400 mt-2">
-            Talkie powers mission-critical AI phone operations from fast-growing startups to high-throughput enterprises.
-          </p>
-        </div>
+        <ScrollReveal direction="up" distance={20}>
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+              Production Applications
+            </h2>
+            <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Engineered for High-Scale Enterprise Voice
+            </h3>
+            <p className="text-sm text-zinc-400 mt-2 font-normal">
+              Talkie powers mission-critical AI phone operations from fast-growing startups to high-throughput enterprises.
+            </p>
+          </div>
+        </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cases.map((c) => (
-            <div
-              key={c.title}
-              className="p-6 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col justify-between hover:border-zinc-700 transition group shadow-xl"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-2xl mb-4 border border-zinc-700/60 shadow-inner">
-                  {c.icon}
+          {cases.map((c, idx) => (
+            <ScrollReveal key={c.title} delay={idx * 100} direction="up" distance={20}>
+              <div className="p-6 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col justify-between hover:border-zinc-700 transition group shadow-xl h-full">
+                <div>
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-2xl mb-4 border border-zinc-700/60 shadow-inner">
+                    {c.icon}
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    {c.tag}
+                  </span>
+                  <h4 className="text-lg font-bold text-white mt-3 mb-2">{c.title}</h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-normal">{c.desc}</p>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  {c.tag}
-                </span>
-                <h4 className="text-lg font-bold text-white mt-3 mb-2">{c.title}</h4>
-                <p className="text-xs text-zinc-400 leading-relaxed">{c.desc}</p>
               </div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
