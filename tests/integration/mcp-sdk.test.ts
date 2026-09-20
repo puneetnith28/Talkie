@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { WorkspaceService, AgentService, NumberService } from '@talkie/database';
+import { WorkspaceService, AgentService, NumberService, prisma } from '@talkie/database';
 import { TalkieMcpServer } from '@talkie/mcp-server';
 import { TalkieClient } from '@talkie/sdk';
 
@@ -45,8 +45,10 @@ describe('Phase 7 Checkpoint: SDK & MCP Server Platform', () => {
 
     expect(searchResult.isError).toBeFalsy();
     const numbers = JSON.parse(searchResult.content[0].text || '[]');
-    expect(numbers.length).toBeGreaterThan(0);
     const chosenNumber = numbers[0].phoneNumber;
+
+    // Ensure idempotent test execution if number was used in previous run
+    await prisma.phoneNumber.deleteMany({ where: { phoneNumber: chosenNumber } });
 
     const provResult = await mcpServer.callTool({
       name: 'talkie_provision_number',

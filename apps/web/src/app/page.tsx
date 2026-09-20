@@ -11,6 +11,7 @@ import { MarketingUseCases } from '@/components/marketing/use-cases';
 import { MarketingFAQ } from '@/components/marketing/faq-accordion';
 import { MarketingFinalCTA } from '@/components/marketing/final-cta';
 import { MarketingFooter } from '@/components/marketing/footer';
+import { DotBackground, GlowBackground } from '@talkie/ui';
 import '@/styles/marketing.css';
 
 export default function HomePage() {
@@ -32,22 +33,28 @@ export default function HomePage() {
       <NumberSearchDemo />
 
       {/* Messaging & Real-Time Transcription Grid */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-            Multimodal Intelligence
-          </h2>
-          <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            Conversational Voice & Omnichannel SMS
-          </h3>
-          <p className="text-sm text-zinc-400 mt-2">
-            Seamlessly pivot between live voice calls and automated two-way text messages within unified contact threads.
-          </p>
-        </div>
+      <section className="relative py-24 border-y border-white/[0.06] overflow-hidden">
+        {/* Dot Matrix and Ambient Connection Glow */}
+        <DotBackground spacing={28} dotSize={1.5} variant="glow" mask="radial" opacity={0.65} />
+        <GlowBackground position="top-center" variant="multi" size={650} blur={160} opacity={0.16} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <TranscriptionDemo />
-          <MessagingDemo />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+              Multimodal Intelligence
+            </h2>
+            <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Conversational Voice & Omnichannel SMS
+            </h3>
+            <p className="text-sm text-zinc-400 mt-2 font-normal">
+              Seamlessly pivot between live voice calls and automated two-way text messages within unified contact threads.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <TranscriptionDemo />
+            <MessagingDemo />
+          </div>
         </div>
       </section>
 
