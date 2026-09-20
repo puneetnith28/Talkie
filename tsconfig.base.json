@@ -20,6 +20,8 @@
     "paths": {
       "@talkie/types": ["packages/types/src"],
       "@talkie/types/*": ["packages/types/src/*"],
+      "@talkie/auth": ["packages/auth/src"],
+      "@talkie/auth/*": ["packages/auth/src/*"],
       "@talkie/config": ["packages/config/src"],
       "@talkie/config/*": ["packages/config/src/*"],
       "@talkie/ui": ["packages/ui/src"],
