@@ -68,6 +68,9 @@ importers:
       tailwind-merge:
         specifier: ^3.0.1
         version: 3.7.0
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^22.13.1
