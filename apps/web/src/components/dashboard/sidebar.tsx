@@ -92,7 +92,9 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
   const handleSignOut = async () => {
     try {
       await signOut?.();
-    } catch {}
+    } catch (_err) {
+      // Ignore signOut errors on unmounted session
+    }
     // Clear session cookies
     document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';

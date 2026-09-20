@@ -16,7 +16,7 @@
     "test:watch": "vitest",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "postinstall": "pnpm --filter @talkie/database db:generate",
     "db:generate": "pnpm --filter @talkie/database db:generate",
     "db:migrate": "pnpm --filter @talkie/database db:migrate",
     "db:seed": "pnpm --filter @talkie/database db:seed"

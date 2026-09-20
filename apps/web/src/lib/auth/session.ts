@@ -69,7 +69,7 @@ export async function getAuthenticatedSession(req: NextRequest): Promise<AuthCon
         } else if (userId) {
           // Just-in-time user creation if webhook has not yet processed
           try {
-            const { createClerkClient } = await import('@clerk/backend');
+            const { createClerkClient } = await import('@clerk/nextjs/server');
             const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
             const clerkUser = await clerk.users.getUser(userId);
             const primaryEmail =
