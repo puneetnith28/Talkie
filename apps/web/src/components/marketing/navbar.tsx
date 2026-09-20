@@ -14,6 +14,17 @@ export function MarketingNavbar() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     if (!mobileMenuOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -26,15 +37,15 @@ export function MarketingNavbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#08090b]/85 backdrop-blur-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-base shadow-lg shadow-blue-500/25 group-hover:scale-105 transition">
+        <Link href="/" className="flex items-center gap-2.5 group cursor-pointer">
+          <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black text-base shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition duration-200">
             T
           </div>
           <span className="font-bold text-lg text-white tracking-tight">Talkie</span>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             v1.0
           </span>
         </Link>
@@ -57,7 +68,7 @@ export function MarketingNavbar() {
             </Button>
           </Link>
           <Link href="/dashboard">
-            <Button variant="primary" className="text-xs py-1.5 px-3.5 shadow-md shadow-blue-500/20">
+            <Button variant="primary" className="text-xs py-1.5 px-3.5 shadow-md shadow-emerald-500/20">
               Start Free Trial →
             </Button>
           </Link>
@@ -69,27 +80,68 @@ export function MarketingNavbar() {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-expanded={mobileMenuOpen}
           aria-label="Toggle navigation menu"
-          className="md:hidden text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-zinc-800/50 transition"
+          className="md:hidden text-zinc-300 hover:text-white p-2.5 rounded-xl hover:bg-white/[0.08] active:scale-95 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile Drawer Overlay with Backdrop Blur & Scroll Lock */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-xl p-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
-          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">How It Works</a>
-          <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Features</a>
-          <a href="#code" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">SDK & MCP</a>
-          <a href="#use-cases" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Use Cases</a>
-          <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Pricing</a>
-          <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-400 hover:text-white py-1.5">Docs</Link>
-          <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2">
+        <div className="md:hidden border-b border-white/[0.08] bg-[#08090b]/98 backdrop-blur-2xl p-5 space-y-1 animate-in slide-in-from-top-3 fade-in duration-250 ease-out shadow-2xl">
+          <a
+            href="#how-it-works"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+          >
+            How It Works
+          </a>
+          <a
+            href="#features"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+          >
+            Features
+          </a>
+          <a
+            href="#code"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+          >
+            SDK & MCP
+          </a>
+          <a
+            href="#use-cases"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+          >
+            Use Cases
+          </a>
+          <a
+            href="#pricing"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+          >
+            Pricing
+          </a>
+          <Link
+            href="/docs"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center h-11 px-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition active:bg-white/[0.1]"
+          >
+            Docs
+          </Link>
+
+          <div className="pt-4 mt-2 border-t border-white/[0.08] flex flex-col gap-2.5">
             <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full">
-              <Button variant="primary" className="w-full text-xs py-2">Start Free Trial →</Button>
+              <Button variant="primary" className="w-full h-11 text-xs font-bold shadow-lg shadow-emerald-500/20">
+                Start Free Trial →
+              </Button>
             </Link>
             <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full">
-              <Button variant="outline" className="w-full text-xs py-2">Console Dashboard</Button>
+              <Button variant="outline" className="w-full h-11 text-xs font-semibold">
+                Console Dashboard
+              </Button>
             </Link>
           </div>
         </div>
