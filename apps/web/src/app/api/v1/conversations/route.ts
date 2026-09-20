@@ -6,8 +6,9 @@ import { z } from 'zod';
 const createConversationSchema = z.object({
   contactId: z.string().optional(),
   phoneNumberId: z.string().optional(),
+  channelAccountId: z.string().optional(),
   agentId: z.string().optional(),
-  channel: z.enum(['sms', 'mms', 'whatsapp']).optional().default('sms'),
+  channel: z.enum(['sms', 'mms', 'whatsapp', 'telegram']).optional().default('sms'),
 });
 
 export async function GET(req: NextRequest) {

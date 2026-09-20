@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Button, Badge, Input, TableSkeleton, EmptyState } from '@talkie/ui';
+import { Card, Button, Badge, Input } from '@talkie/ui';
 import { ConversationList } from './conversation-list';
 import { ChatThread } from './chat-thread';
 import { MessageComposer } from './message-composer';
@@ -12,12 +12,11 @@ import {
   Mail,
   Building,
   Plus,
-  Sparkles,
   MessageSquare,
   RefreshCw,
   Send,
   ArrowLeft,
-  X,
+  MessageCircle,
 } from 'lucide-react';
 
 interface MessagesContainerProps {
@@ -46,7 +45,7 @@ export function MessagesContainer({
   const [newRecipient, setNewRecipient] = useState('');
   const [newFromNumber, setNewFromNumber] = useState('');
   const [newBody, setNewBody] = useState('');
-  const [newChannel, setNewChannel] = useState<'sms' | 'mms' | 'whatsapp'>('sms');
+  const [newChannel, setNewChannel] = useState<'sms' | 'mms' | 'whatsapp' | 'telegram'>('sms');
   const [isSendingNew, setIsSendingNew] = useState(false);
   const [newError, setNewError] = useState<string | null>(null);
 
@@ -123,19 +122,23 @@ export function MessagesContainer({
   const handleSendMessage = async (body: string) => {
     if (!selectedConversation) return;
 
-    const senderNumber =
+    const channel = selectedConversation.channel || 'sms';
+    let senderNumber =
       selectedConversation.phoneNumber?.phoneNumber ||
       numbers[0]?.phoneNumber ||
       '+14155550100';
 
+    if (channel === 'whatsapp') {
+      senderNumber = 'whatsapp_business';
+    } else if (channel === 'telegram') {
+      senderNumber = '@TalkieBot';
+    }
+
     const recipientNumber =
       selectedConversation.contact?.phoneNumber ||
-      selectedConversation.recipientNumber;
-
-    if (!senderNumber || !recipientNumber) {
-      alert('Sender phone number or recipient number is missing.');
-      return;
-    }
+      selectedConversation.contact?.whatsappId ||
+      selectedConversation.contact?.telegramId ||
+      'unknown';
 
     // Optimistic message append
     const tempId = `temp_${Date.now()}`;
@@ -143,6 +146,7 @@ export function MessagesContainer({
       id: tempId,
       conversationId: selectedId,
       direction: 'outbound',
+      channel,
       senderNumber,
       recipientNumber,
       body,
@@ -160,7 +164,7 @@ export function MessagesContainer({
           from: senderNumber,
           to: recipientNumber,
           body,
-          channel: selectedConversation.channel || 'sms',
+          channel,
           agentId: selectedConversation.agentId || undefined,
         }),
       });
@@ -187,7 +191,7 @@ export function MessagesContainer({
 
   const handleCreateNewConversation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRecipient || !newFromNumber || !newBody) {
+    if (!newRecipient || !newBody) {
       setNewError('Please complete all required fields.');
       return;
     }
@@ -195,12 +199,19 @@ export function MessagesContainer({
     setIsSendingNew(true);
     setNewError(null);
 
+    const fromVal =
+      newChannel === 'telegram'
+        ? '@TalkieBot'
+        : newChannel === 'whatsapp'
+        ? 'whatsapp_business'
+        : newFromNumber || '+14155550100';
+
     try {
       const res = await fetch('/api/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: newFromNumber,
+          from: fromVal,
           to: newRecipient,
           body: newBody,
           channel: newChannel,
@@ -227,29 +238,22 @@ export function MessagesContainer({
     }
   };
 
-  const filteredConversations = conversations.filter((c) => {
-    if (channelFilter !== 'all' && c.channel?.toLowerCase() !== channelFilter) {
-      return false;
-    }
-    return true;
-  });
-
   return (
     <div className="space-y-4">
       {/* Top Header Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {['all', 'sms', 'whatsapp'].map((ch) => (
+          {['all', 'sms', 'whatsapp', 'telegram'].map((ch) => (
             <button
               key={ch}
               onClick={() => setChannelFilter(ch)}
-              className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition ${
+              className={`px-3 py-1 rounded-lg text-xs font-medium uppercase transition ${
                 channelFilter === ch
-                  ? 'bg-neutral-800 text-white border border-white/[0.1]'
+                  ? 'bg-neutral-800 text-white border border-white/[0.15]'
                   : 'text-neutral-400 hover:text-white border border-transparent'
               }`}
             >
-              {ch.toUpperCase()}
+              {ch}
             </button>
           ))}
         </div>
@@ -282,11 +286,13 @@ export function MessagesContainer({
         {/* Pane 1: Conversations List */}
         <div className={`w-full md:w-80 flex-shrink-0 ${mobileShowChat ? 'hidden md:flex' : 'flex'} flex-col h-full`}>
           <ConversationList
-            conversations={filteredConversations}
+            conversations={conversations}
             selectedId={selectedId}
             onSelect={handleSelectConversation}
             searchQuery={searchQuery}
             onSearchChange={(q) => setSearchQuery(q)}
+            channelFilter={channelFilter}
+            onChannelFilterChange={(ch) => setChannelFilter(ch)}
           />
         </div>
 
@@ -323,7 +329,10 @@ export function MessagesContainer({
             loading={loadingMessages}
           />
           {selectedConversation && (
-            <MessageComposer onSend={handleSendMessage} />
+            <MessageComposer
+              channel={selectedConversation.channel || 'sms'}
+              onSend={handleSendMessage}
+            />
           )}
         </div>
 
@@ -339,7 +348,9 @@ export function MessagesContainer({
                   {selectedConversation.contact?.name || 'Direct Contact'}
                 </h3>
                 <p className="text-xs text-neutral-400 font-mono mt-0.5">
-                  {selectedConversation.contact?.phoneNumber}
+                  {selectedConversation.contact?.telegramUsername
+                    ? `@${selectedConversation.contact.telegramUsername}`
+                    : selectedConversation.contact?.phoneNumber || selectedConversation.contact?.whatsappId}
                 </p>
               </div>
             </div>
@@ -397,7 +408,7 @@ export function MessagesContainer({
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white tracking-tight">New Omnichannel Thread</h3>
-                  <p className="text-xs text-neutral-400">Dispatch SMS or WhatsApp directly from your numbers.</p>
+                  <p className="text-xs text-neutral-400">Dispatch SMS, WhatsApp, or Telegram messages.</p>
                 </div>
               </div>
               <button
@@ -417,47 +428,6 @@ export function MessagesContainer({
             <form onSubmit={handleCreateNewConversation} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-                  Sender Phone Number (From)
-                </label>
-                {numbers.length > 0 ? (
-                  <select
-                    value={newFromNumber}
-                    onChange={(e) => setNewFromNumber(e.target.value)}
-                    className="w-full h-9 rounded-lg bg-neutral-900 border border-white/[0.08] px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    required
-                  >
-                    {numbers.map((num) => (
-                      <option key={num.id} value={num.phoneNumber}>
-                        {num.phoneNumber} ({num.provider})
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <Input
-                    value={newFromNumber}
-                    onChange={(e) => setNewFromNumber(e.target.value)}
-                    placeholder="+14155550142"
-                    className="h-9 text-xs bg-neutral-900 border-white/[0.08]"
-                    required
-                  />
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-                  Recipient Number (To)
-                </label>
-                <Input
-                  value={newRecipient}
-                  onChange={(e) => setNewRecipient(e.target.value)}
-                  placeholder="+14155550199"
-                  className="h-9 text-xs bg-neutral-900 border-white/[0.08]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-1.5">
                   Channel
                 </label>
                 <select
@@ -465,10 +435,62 @@ export function MessagesContainer({
                   onChange={(e) => setNewChannel(e.target.value as any)}
                   className="w-full h-9 rounded-lg bg-neutral-900 border border-white/[0.08] px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
-                  <option value="sms">SMS (Standard)</option>
-                  <option value="whatsapp">WhatsApp Business</option>
+                  <option value="sms">SMS (Carrier Phone)</option>
+                  <option value="whatsapp">WhatsApp Business Cloud API</option>
+                  <option value="telegram">Telegram Bot</option>
                   <option value="mms">MMS (Multimedia)</option>
                 </select>
+              </div>
+
+              {newChannel === 'sms' || newChannel === 'mms' ? (
+                <div>
+                  <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                    Sender Phone Number (From)
+                  </label>
+                  {numbers.length > 0 ? (
+                    <select
+                      value={newFromNumber}
+                      onChange={(e) => setNewFromNumber(e.target.value)}
+                      className="w-full h-9 rounded-lg bg-neutral-900 border border-white/[0.08] px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      required
+                    >
+                      {numbers.map((num) => (
+                        <option key={num.id} value={num.phoneNumber}>
+                          {num.phoneNumber} ({num.provider})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <Input
+                      value={newFromNumber}
+                      onChange={(e) => setNewFromNumber(e.target.value)}
+                      placeholder="+14155550142"
+                      className="h-9 text-xs bg-neutral-900 border-white/[0.08]"
+                      required
+                    />
+                  )}
+                </div>
+              ) : null}
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                  {newChannel === 'telegram'
+                    ? 'Recipient Chat ID / Handle'
+                    : newChannel === 'whatsapp'
+                    ? 'Recipient WhatsApp Phone (+E.164)'
+                    : 'Recipient Phone Number (+E.164)'}
+                </label>
+                <Input
+                  value={newRecipient}
+                  onChange={(e) => setNewRecipient(e.target.value)}
+                  placeholder={
+                    newChannel === 'telegram'
+                      ? '555666777 or @username'
+                      : '+14155550199'
+                  }
+                  className="h-9 text-xs bg-neutral-900 border-white/[0.08]"
+                  required
+                />
               </div>
 
               <div>

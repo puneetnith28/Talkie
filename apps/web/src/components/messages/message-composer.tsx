@@ -1,15 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Textarea } from '@talkie/ui';
-import { Send, Loader2, Sparkles, Paperclip } from 'lucide-react';
+import { Button } from '@talkie/ui';
+import { Send, Loader2 } from 'lucide-react';
 
 interface MessageComposerProps {
+  channel?: string;
   onSend: (body: string) => Promise<void>;
   disabled?: boolean;
 }
 
-export function MessageComposer({ onSend, disabled }: MessageComposerProps) {
+export function MessageComposer({ channel = 'sms', onSend, disabled }: MessageComposerProps) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -31,6 +32,13 @@ export function MessageComposer({ onSend, disabled }: MessageComposerProps) {
     }
   };
 
+  let placeholder = 'Type your SMS message... (Press ⌘+Enter to send)';
+  if (channel === 'whatsapp') {
+    placeholder = 'Reply via WhatsApp Business Cloud API... (Press ⌘+Enter to send)';
+  } else if (channel === 'telegram') {
+    placeholder = 'Send response to Telegram chat... (Press ⌘+Enter to send)';
+  }
+
   return (
     <div className="p-4 border-t border-white/[0.08] bg-[#0a0c10] space-y-2">
       <div className="relative">
@@ -39,7 +47,7 @@ export function MessageComposer({ onSend, disabled }: MessageComposerProps) {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={disabled || sending}
-          placeholder="Type your message... (Press ⌘+Enter to send)"
+          placeholder={placeholder}
           rows={2}
           className="w-full rounded-xl bg-black/40 border border-white/[0.08] p-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-emerald-500/50 resize-none transition-all"
         />
@@ -47,9 +55,13 @@ export function MessageComposer({ onSend, disabled }: MessageComposerProps) {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-neutral-500">
-          <span className="font-mono">{text.length} chars</span>
-          <span>•</span>
-          <span className="font-mono">{Math.max(1, Math.ceil(text.length / 160))} segment(s)</span>
+          <span className="font-mono">{text.length} characters</span>
+          {channel === 'sms' && (
+            <>
+              <span>•</span>
+              <span className="font-mono">{Math.max(1, Math.ceil(text.length / 160))} segment(s)</span>
+            </>
+          )}
         </div>
 
         <Button

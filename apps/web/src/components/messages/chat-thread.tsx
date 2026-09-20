@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Badge } from '@talkie/ui';
-import { Bot, User, Check, CheckCheck, Clock, AlertCircle } from 'lucide-react';
+import { Bot, Check, CheckCheck, AlertCircle, MessageCircle, Send, MessageSquare } from 'lucide-react';
 
 interface ChatThreadProps {
   conversation: any;
@@ -19,22 +19,40 @@ export function ChatThread({ conversation, messages, loading }: ChatThreadProps)
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0d0f14] text-neutral-500 text-sm">
-        Select a conversation from the list to start messaging.
+      <div className="flex-1 flex flex-col items-center justify-center bg-[#0d0f14] text-neutral-500 text-xs p-8 text-center">
+        <MessageSquare className="w-8 h-8 text-neutral-600 mb-2" />
+        <span>Select a conversation from the list to view the message history or compose a response.</span>
       </div>
     );
   }
 
-  const contactName = conversation.contact?.name || conversation.contact?.phoneNumber || 'Direct SMS';
-  const phoneNumber = conversation.phoneNumber?.phoneNumber || conversation.phoneNumberId;
+  const channel = conversation.channel || 'sms';
+  const contactName =
+    conversation.contact?.name ||
+    (conversation.contact?.telegramUsername ? `@${conversation.contact?.telegramUsername}` : null) ||
+    conversation.contact?.phoneNumber ||
+    'Direct Contact';
+
+  let channelBadgeClass = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
+  let ChannelIcon = MessageSquare;
+
+  if (channel === 'whatsapp') {
+    channelBadgeClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+    ChannelIcon = MessageCircle;
+  } else if (channel === 'telegram') {
+    channelBadgeClass = 'text-sky-400 bg-sky-500/10 border-sky-500/20';
+    ChannelIcon = Send;
+  }
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#0d0f14]">
       {/* Thread Header */}
       <div className="h-16 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#0a0c10]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">
-            {contactName.charAt(0).toUpperCase()}
+          <div
+            className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border ${channelBadgeClass}`}
+          >
+            {contactName.replace('@', '').charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="font-semibold text-white text-sm tracking-tight flex items-center gap-2">
@@ -47,15 +65,20 @@ export function ChatThread({ conversation, messages, loading }: ChatThreadProps)
               )}
             </div>
             <div className="text-xs text-neutral-400 font-mono">
-              {conversation.contact?.phoneNumber} • via {phoneNumber}
+              {conversation.contact?.telegramUsername
+                ? `@${conversation.contact.telegramUsername}`
+                : conversation.contact?.phoneNumber || conversation.contact?.whatsappId || 'Active channel thread'}
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant="neutral" className="text-xs font-mono">
-            {conversation.channel?.toUpperCase() || 'SMS'}
-          </Badge>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs uppercase font-bold px-2.5 py-1 rounded-lg border ${channelBadgeClass}`}
+          >
+            <ChannelIcon className="w-3.5 h-3.5" />
+            <span>{channel}</span>
+          </span>
         </div>
       </div>
 
