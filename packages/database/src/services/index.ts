@@ -5,3 +5,4 @@ export * from './number.service';
 export * from './contact.service';
 export * from './message.service';
 export * from './call.service';
+export * from './webhook.service';
