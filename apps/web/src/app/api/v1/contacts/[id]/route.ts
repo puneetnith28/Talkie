@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ContactService, prisma } from '@talkie/database';
+import { ContactService } from '@talkie/database';
+import { getAuthenticatedSession } from '@/lib/auth/session';
 import { z } from 'zod';
 
 const updateContactSchema = z.object({
@@ -15,7 +16,8 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     const contact = await ContactService.getById(workspaceId, id);
     if (!contact) {
@@ -40,7 +42,8 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
     const body = await req.json();
 
     const parsed = updateContactSchema.safeParse(body);
@@ -73,7 +76,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const workspaceId = req.headers.get('x-workspace-id') || 'ws_default_talkie_01';
+    const session = await getAuthenticatedSession(req);
+    const workspaceId = session.workspaceId;
 
     await ContactService.delete(workspaceId, id);
     return NextResponse.json({ success: true });
