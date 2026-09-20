@@ -5,51 +5,63 @@ import { Card } from '@talkie/ui';
 
 interface StatsProps {
   agentCount: number;
+  activeAgentCount?: number;
   numberCount: number;
   totalCalls: number;
   balanceCents: number;
-  callSuccessRate?: number;
+  callSuccessRate: number | null;
 }
 
 export function StatsCards({
   agentCount,
+  activeAgentCount = 0,
   numberCount,
   totalCalls,
   balanceCents,
-  callSuccessRate = 100,
+  callSuccessRate,
 }: StatsProps) {
   const cards = [
     {
       label: 'AI Agents',
       value: agentCount,
-      change: agentCount > 0 ? `${agentCount} active voice bots` : 'No agents created',
+      change:
+        agentCount > 0
+          ? `${activeAgentCount} active / ${agentCount} configured`
+          : 'No agents created yet',
       href: '/dashboard/agents',
       icon: Bot,
       color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+      activeIndicator: agentCount > 0,
     },
     {
       label: 'Phone Numbers',
       value: numberCount,
-      change: numberCount > 0 ? `${numberCount} carrier lines assigned` : 'No numbers claimed',
+      change: numberCount > 0 ? `${numberCount} carrier line${numberCount > 1 ? 's' : ''} assigned` : 'No numbers claimed',
       href: '/dashboard/numbers',
       icon: Phone,
       color: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+      activeIndicator: numberCount > 0,
     },
     {
       label: 'Calls Processed',
       value: totalCalls,
-      change: `${callSuccessRate}% success rate`,
+      change:
+        totalCalls > 0 && callSuccessRate !== null
+          ? `${callSuccessRate}% call success rate`
+          : 'No calls recorded yet',
       href: '/dashboard/calls',
       icon: PhoneCall,
       color: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+      activeIndicator: totalCalls > 0,
     },
     {
       label: 'Credit Balance',
       value: `$${(balanceCents / 100).toFixed(2)}`,
-      change: 'Live balance ledger',
+      change: 'Live workspace balance',
       href: '/dashboard/usage',
       icon: CreditCard,
       color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+      activeIndicator: balanceCents > 0,
     },
   ];
 
@@ -77,7 +89,11 @@ export function StatsCards({
               </div>
 
               <div className="text-[11px] text-neutral-400 mt-2 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    card.activeIndicator ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600'
+                  }`}
+                />
                 <span>{card.change}</span>
               </div>
             </Card>

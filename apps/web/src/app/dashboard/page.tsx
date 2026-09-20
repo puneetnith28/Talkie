@@ -86,6 +86,7 @@ export default function DashboardOverviewPage() {
           {/* Key Metric Overview Cards */}
           <StatsCards
             agentCount={stats.agentCount}
+            activeAgentCount={stats.activeAgentCount}
             numberCount={stats.numberCount}
             totalCalls={stats.totalCalls}
             balanceCents={stats.balanceCents}
@@ -97,6 +98,7 @@ export default function DashboardOverviewPage() {
             hasAgents={stats.agentCount > 0}
             hasNumbers={stats.numberCount > 0}
             hasCalls={stats.totalCalls > 0}
+            hasApiKeys={Boolean(stats.hasApiKeys)}
           />
 
           {/* Quick Actions & Live Stream */}
