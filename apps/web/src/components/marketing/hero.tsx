@@ -2,14 +2,16 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Button } from '@talkie/ui';
+import { Button, GridBackground, GlowBackground } from '@talkie/ui';
 import { HeroCallDemo } from './hero-call-demo';
 
 export function MarketingHero() {
   return (
-    <section className="relative pt-24 pb-20 overflow-hidden">
-      {/* Background Radial Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-blue-600/20 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
+    <section className="relative pt-28 pb-24 overflow-hidden border-b border-white/[0.06]">
+      {/* Background System: Fine Grid + Dual Radial Ambient Glow */}
+      <GridBackground size={36} variant="glow" mask="radial" opacity={0.65} />
+      <GlowBackground position="top-center" variant="primary" size={750} blur={140} opacity={0.22} />
+      <GlowBackground position="top-left" variant="cyan" size={500} blur={160} opacity={0.12} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
