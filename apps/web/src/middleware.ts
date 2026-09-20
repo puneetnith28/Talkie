@@ -1,8 +1,20 @@
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const requestId = request.headers.get('x-request-id') || `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/settings(.*)',
+]);
+
+const hasClerkKey = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+  !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('your_clerk')
+);
+
+export default clerkMiddleware(async (auth, request) => {
+  const requestId =
+    request.headers.get('x-request-id') ||
+    `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
   // Handle preflight CORS for API routes
   if (request.method === 'OPTIONS' && request.nextUrl.pathname.startsWith('/api/')) {
@@ -11,10 +23,16 @@ export function middleware(request: NextRequest) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Workspace-Id, X-Request-Id, X-Talkie-Signature, X-Talkie-Timestamp, X-Talkie-Event',
+        'Access-Control-Allow-Headers':
+          'Content-Type, Authorization, X-Workspace-Id, X-Request-Id, X-Talkie-Signature, X-Talkie-Timestamp, X-Talkie-Event',
         'Access-Control-Max-Age': '86400',
       },
     });
+  }
+
+  // Protect /dashboard and /settings routes if Clerk credentials are configured
+  if (hasClerkKey && isProtectedRoute(request)) {
+    await auth.protect();
   }
 
   const response = NextResponse.next();
@@ -25,8 +43,13 @@ export function middleware(request: NextRequest) {
   }
 
   return response;
-}
+});
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 };
