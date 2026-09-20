@@ -8,6 +8,7 @@ out/
 build/
 dist/
 .turbo/
+*.tsbuildinfo
 
 # Environment files
 .env.local
@@ -31,5 +32,5 @@ pnpm-debug.log*
 *.swp
 *.swo
 
-# Master Spec (keep private/uncommitted if desired)
+# Master Spec
 workflow.md
