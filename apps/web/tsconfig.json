@@ -30,7 +30,9 @@
       "@talkie/ui": ["../../packages/ui/src"],
       "@talkie/ui/*": ["../../packages/ui/src/*"],
       "@talkie/database": ["../../packages/database/src"],
-      "@talkie/database/*": ["../../packages/database/src/*"]
+      "@talkie/database/*": ["../../packages/database/src/*"],
+      "@talkie/telephony": ["../../packages/telephony/src"],
+      "@talkie/telephony/*": ["../../packages/telephony/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -6,6 +6,7 @@ const nextConfig = {
     '@talkie/config',
     '@talkie/types',
     '@talkie/database',
+    '@talkie/telephony',
   ],
   reactStrictMode: true,
 };

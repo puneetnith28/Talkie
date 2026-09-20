@@ -12,6 +12,7 @@
     "@talkie/auth": "workspace:*",
     "@talkie/config": "workspace:*",
     "@talkie/database": "workspace:*",
+    "@talkie/telephony": "workspace:*",
     "@talkie/types": "workspace:*",
     "@talkie/ui": "workspace:*",
     "clsx": "^2.1.1",

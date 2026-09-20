@@ -27,13 +27,15 @@ export class WorkspaceService {
         },
       });
 
-      await tx.workspaceMember.create({
-        data: {
-          workspaceId: workspace.id,
-          userId: input.userId,
-          role: 'owner',
-        },
-      });
+      if (input.userId) {
+        await tx.workspaceMember.create({
+          data: {
+            workspaceId: workspace.id,
+            userId: input.userId,
+            role: 'owner',
+          },
+        });
+      }
 
       return workspace;
     });

@@ -36,3 +36,10 @@ pnpm-debug.log*
 workflow.md
 
 plan.md
+
+# SQLite & Databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+packages/database/prisma/*.db

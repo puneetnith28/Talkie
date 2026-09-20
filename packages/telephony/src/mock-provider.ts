@@ -40,7 +40,7 @@ export class MockTelephonyProvider implements TelephonyProvider {
     const numbers: AvailableNumber[] = [];
 
     for (let i = 1; i <= count; i++) {
-      const line = (1000 + i * 47).toString().padStart(4, '0');
+      const line = Math.floor(1000 + Math.random() * 8999).toString();
       const prefix = '555';
       const rawNumber = `${areaInfo.countryCode}${areaCode}${prefix}${line}`;
       const friendlyName = `(${areaCode}) ${prefix}-${line}`;
