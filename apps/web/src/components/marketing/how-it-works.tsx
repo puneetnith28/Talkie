@@ -16,6 +16,10 @@ export function MarketingHowItWorks() {
       desc: 'Instant carrier voice & SMS provisioning with global area codes.',
       badge: 'Telephony',
       icon: Phone,
+      iconBg: 'bg-blue-500/15',
+      iconBorder: 'border-blue-500/30',
+      iconColor: 'text-blue-400',
+      badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
       snippets: {
         ts: `// 1. Provision phone number via TypeScript SDK
 const number = await talkie.numbers.provision({
@@ -44,6 +48,10 @@ curl -X POST https://api.talkie.ai/v1/numbers/provision \\
       desc: 'Configure neural voice timbre, interruption sensitivity, & system prompt.',
       badge: 'Agent Studio',
       icon: Cpu,
+      iconBg: 'bg-fuchsia-500/15',
+      iconBorder: 'border-fuchsia-500/30',
+      iconColor: 'text-fuchsia-400',
+      badgeColor: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
       snippets: {
         ts: `// 2. Configure Agent Persona & LLM Prompt
 const agent = await talkie.agents.create({
@@ -74,6 +82,10 @@ curl -X POST https://api.talkie.ai/v1/agents \\
       desc: 'Stream live bidirectional audio with sub-300ms latency SSE transcripts.',
       badge: 'Real-Time PubSub',
       icon: Radio,
+      iconBg: 'bg-emerald-500/15',
+      iconBorder: 'border-emerald-500/30',
+      iconColor: 'text-emerald-400',
+      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
       snippets: {
         ts: `// 3. Subscribe to real-time call transcript stream (SSE)
 const stream = talkie.realtime.streamCalls({ agentId: 'ag_voice_support' });
@@ -97,6 +109,10 @@ curl -N https://api.talkie.ai/v1/realtime/stream \\
       desc: 'Dispatch HMAC-signed webhooks & instant post-call SMS confirmations.',
       badge: 'Omnichannel',
       icon: MessageSquare,
+      iconBg: 'bg-amber-500/15',
+      iconBorder: 'border-amber-500/30',
+      iconColor: 'text-amber-400',
+      badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
       snippets: {
         ts: `// 4. Send post-call confirmation SMS & trigger webhook
 await talkie.messages.send({
@@ -195,20 +211,16 @@ curl -X POST https://api.talkie.ai/v1/messages \\
                 <div className="flex items-center justify-between mb-3 w-full">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-                        isActive
-                          ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
-                          : 'bg-white/[0.05] text-neutral-400'
-                      }`}
+                      className={`w-7 h-7 rounded-lg ${s.iconBg} border ${s.iconBorder} flex items-center justify-center transition-transform group-hover:scale-105`}
                     >
-                      <Icon className="w-3.5 h-3.5" />
+                      <Icon className={`w-3.5 h-3.5 ${s.iconColor}`} />
                     </div>
-                    <span className={`text-xs font-mono font-bold tracking-wider ${isActive ? 'text-pink-400' : 'text-neutral-500'}`}>
+                    <span className={`text-xs font-mono font-bold tracking-wider ${isActive ? 'text-pink-400' : 'text-neutral-400'}`}>
                       STEP {s.num}
                     </span>
                   </div>
 
-                  <span className="text-[9px] uppercase font-mono tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] text-neutral-400 border border-white/[0.08]">
+                  <span className={`text-[9px] uppercase font-mono tracking-wider px-2 py-0.5 rounded-full border ${s.badgeColor}`}>
                     {s.badge}
                   </span>
                 </div>
