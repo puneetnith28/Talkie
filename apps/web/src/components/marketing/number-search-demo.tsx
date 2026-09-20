@@ -2,115 +2,139 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Phone, Check, ArrowRight } from 'lucide-react';
-import { GridBackground, GlowBackground } from '@talkie/ui';
+import { Phone, Check, ArrowRight, Signal, Globe, Copy } from 'lucide-react';
+
+const REAL_CARRIER_NUMBERS: Record<string, Array<{ number: string; region: string; features: string }>> = {
+  '415': [
+    { number: '+1 (415) 555-0199', region: 'San Francisco, CA', features: 'Voice & SMS' },
+    { number: '+1 (415) 842-1102', region: 'San Francisco, CA', features: 'Voice & SMS' },
+  ],
+  '212': [
+    { number: '+1 (212) 555-0144', region: 'New York, NY', features: 'Voice & SMS' },
+    { number: '+1 (212) 789-0128', region: 'Manhattan, NY', features: 'Voice & SMS' },
+  ],
+  '512': [
+    { number: '+1 (512) 555-0182', region: 'Austin, TX', features: 'Voice & SMS' },
+    { number: '+1 (512) 901-4433', region: 'Austin, TX', features: 'Voice & SMS' },
+  ],
+  '647': [
+    { number: '+1 (647) 555-0167', region: 'Toronto, ON', features: 'Voice & SMS' },
+    { number: '+1 (647) 832-9901', region: 'Toronto, ON', features: 'Voice & SMS' },
+  ],
+};
 
 export function NumberSearchDemo() {
-  const [country, setCountry] = useState('US');
+  const [country, setCountry] = useState<'US' | 'CA'>('US');
   const [areaCode, setAreaCode] = useState('415');
-  const [claimed, setClaimed] = useState<string | null>(null);
+  const [copiedNum, setCopiedNum] = useState<string | null>(null);
 
-  const sampleNumbers = [
-    { number: `+1 (${areaCode || '415'}) 555-0199`, locality: 'San Francisco, CA', type: 'Voice & SMS' },
-    { number: `+1 (${areaCode || '415'}) 842-1102`, locality: 'Downtown Metro', type: 'Voice & SMS' },
-    { number: `+1 (${areaCode || '415'}) 920-4381`, locality: 'Bay Area Central', type: 'Voice & SMS' },
-  ];
+  const activeNumbers =
+    REAL_CARRIER_NUMBERS[areaCode] || [
+      { number: `+1 (${areaCode || '415'}) 555-0199`, region: country === 'US' ? 'United States' : 'Canada', features: 'Voice & SMS' },
+      { number: `+1 (${areaCode || '415'}) 842-1102`, region: country === 'US' ? 'United States' : 'Canada', features: 'Voice & SMS' },
+    ];
 
-  const handleClaim = (num: string) => {
+  const handleCopy = (num: string) => {
     navigator.clipboard?.writeText(num);
-    setClaimed(num);
-    setTimeout(() => setClaimed(null), 2500);
+    setCopiedNum(num);
+    setTimeout(() => setCopiedNum(null), 2000);
   };
 
   return (
-    <section id="features" className="relative py-24 bg-zinc-950/60 border-t border-zinc-800/80 font-sans overflow-hidden">
-      {/* Telephony Technical Grid System */}
-      <GridBackground size={40} variant="telephony" mask="radial" opacity={0.75} />
-      <GlowBackground position="top-right" variant="cyan" size={600} blur={160} opacity={0.16} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
-            Global Telephony Provisioning
+    <section id="numbers" className="relative py-20 sm:py-28 bg-[#050406] border-t border-white/[0.06] overflow-hidden font-sans">
+      {/* Background ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-pink-600/[0.06] rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold mb-3">
+            <Signal className="w-3.5 h-3.5" />
+            <span>Tier-1 Carrier Inventory</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            Search &amp; Bind Carrier Numbers
           </h2>
-          <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            Search & Claim Live Numbers Instantly
-          </h3>
-          <p className="text-sm text-zinc-400 mt-2 font-normal">
-            Deploy local presence phone numbers anywhere in North America with automatic SIP binding and inbound AI routing.
+          <p className="text-sm sm:text-base text-neutral-400 mt-3 font-normal">
+            Instant SIP binding with automated inbound AI voice webhooks across North America.
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl bg-zinc-900 border border-zinc-800/90 shadow-2xl space-y-6 backdrop-blur-xl">
-          {/* Controls row */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">Country</label>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition cursor-pointer"
-              >
-                <option value="US">🇺🇸 United States (+1)</option>
-                <option value="CA">🇨🇦 Canada (+1)</option>
-              </select>
+        {/* Minimal Search & Provisioning Card */}
+        <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-[#0c080e]/90 border border-white/[0.08] shadow-2xl backdrop-blur-2xl">
+          {/* Filter row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">Country</label>
+              <div className="relative">
+                <select
+                  value={country}
+                  onChange={(e) => {
+                    const c = e.target.value as 'US' | 'CA';
+                    setCountry(c);
+                    setAreaCode(c === 'US' ? '415' : '647');
+                  }}
+                  className="w-full bg-neutral-900/90 border border-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500/50 transition cursor-pointer appearance-none"
+                >
+                  <option value="US">🇺🇸 United States (+1)</option>
+                  <option value="CA">🇨🇦 Canada (+1)</option>
+                </select>
+                <Globe className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">Area Code (e.g. 415, 212, 647)</label>
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">Area Code (e.g. 415, 212, 512, 647)</label>
               <input
                 type="text"
                 maxLength={3}
                 placeholder="415"
                 value={areaCode}
                 onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition font-mono"
+                className="w-full bg-neutral-900/90 border border-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500/50 transition font-mono"
               />
             </div>
           </div>
 
-          {/* Results list */}
-          <div className="space-y-3 pt-2">
-            <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Available Numbers for Immediate Provisioning
+          {/* Available Numbers List */}
+          <div className="space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 flex items-center justify-between">
+              <span>Available Carrier Inventory</span>
+              <span className="text-pink-400">Status: Real-Time Ready</span>
             </div>
 
-            {sampleNumbers.map((item) => {
-              const isClaimed = claimed === item.number;
+            {activeNumbers.map((item) => {
+              const isCopied = copiedNum === item.number;
               return (
                 <div
                   key={item.number}
-                  className="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-zinc-700 transition"
+                  className="p-4 rounded-xl sm:rounded-2xl bg-black/40 border border-white/[0.06] hover:border-pink-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-                      <Phone className="size-4" />
+                    <div className="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/25 flex items-center justify-center text-pink-400 shrink-0">
+                      <Phone className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-base font-bold text-white font-mono">{item.number}</div>
-                      <div className="text-xs text-zinc-400 mt-0.5">{item.locality} • {item.type}</div>
+                      <div className="text-sm sm:text-base font-bold text-white font-mono">{item.number}</div>
+                      <div className="text-xs text-neutral-400">{item.region} • {item.features}</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <button
-                      onClick={() => handleClaim(item.number)}
-                      className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-750 text-xs font-semibold text-zinc-200 border border-zinc-700/70 transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                      type="button"
+                      onClick={() => handleCopy(item.number)}
+                      className="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-neutral-200 border border-white/[0.08] transition flex items-center gap-1.5 cursor-pointer active:scale-95"
                     >
-                      {isClaimed ? (
-                        <>
-                          <Check className="size-3.5 text-emerald-400" />
-                          <span className="text-emerald-400">Copied</span>
-                        </>
-                      ) : (
-                        <span>Copy Number</span>
-                      )}
+                      {isCopied ? <Check className="w-3.5 h-3.5 text-pink-400" /> : <Copy className="w-3.5 h-3.5 text-neutral-400" />}
+                      <span>{isCopied ? 'Copied' : 'Copy'}</span>
                     </button>
                     <Link
-                      href="/dashboard/numbers"
-                      className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white transition shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5"
+                      href="/sign-up"
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-xs font-bold text-white transition shadow-lg shadow-pink-500/20 flex items-center gap-1.5 active:scale-95"
                     >
-                      <span>Claim</span>
-                      <ArrowRight className="size-3" />
+                      <span>Claim Number</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 </div>

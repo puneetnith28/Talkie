@@ -1,70 +1,88 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ScrollReveal } from '@talkie/ui';
+import { ChevronDown, HelpCircle } from 'lucide-react';
+
+const FAQS = [
+  {
+    q: 'How does Talkie achieve sub-300ms voice response latency?',
+    a: 'We combine real-time bidirectional WebSocket audio streaming with Deepgram Nova-2 streaming STT, speculative turn streaming, and ElevenLabs neural TTS to deliver live conversation turns in under 300ms.',
+  },
+  {
+    q: 'Can I provision real phone numbers in US and Canada?',
+    a: 'Yes. Talkie provides immediate API and dashboard provisioning for local 10-digit carrier numbers and toll-free numbers across thousands of North American area codes.',
+  },
+  {
+    q: 'How does MCP (Model Context Protocol) integration work?',
+    a: 'Talkie provides an official open-source MCP server (@talkie/mcp-server) enabling AI assistants in Claude Code, Cursor, and agent frameworks to make voice calls and send SMS messages natively.',
+  },
+  {
+    q: 'Are incoming webhooks secured against replay attacks?',
+    a: 'All webhook payloads are HMAC-SHA256 signed with unique signatures and timestamps in the request headers (X-Talkie-Signature, X-Talkie-Timestamp) with a 5-minute replay tolerance.',
+  },
+  {
+    q: 'What are the pay-as-you-go pricing rates?',
+    a: 'Voice calls are $0.05/minute (including STT, LLM inference, and TTS), SMS messages are $0.015/segment, and dedicated carrier numbers are $2.00/month with zero minimum commitments.',
+  },
+];
 
 export function MarketingFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = [
-    {
-      q: 'How does Talkie achieve sub-second voice latency?',
-      a: 'We combine real-time WebSocket audio streaming with Deepgram streaming speech-to-text, speculative LLM turn generation, and ElevenLabs low-latency voice synthesis to achieve round-trip conversational turns in under 450 milliseconds.',
-    },
-    {
-      q: 'Can I provision real phone numbers in US and Canada?',
-      a: 'Yes! Talkie allows instant search and provisioning of local 10-digit phone numbers and toll-free numbers across thousands of US and Canadian area codes directly via dashboard or API.',
-    },
-    {
-      q: 'How does MCP (Model Context Protocol) integration work?',
-      a: 'Talkie provides an official MCP Server (@talkie/mcp-server) enabling AI assistants in Claude Desktop, Cursor, or autonomous agents to make calls, send texts, and provision phone numbers natively.',
-    },
-    {
-      q: 'Are webhooks secured against replay attacks?',
-      a: 'All webhook events are HMAC-SHA256 signed with unique signatures, timestamps (5-minute tolerance window), and event identifiers in the request headers (X-Talkie-Signature, X-Talkie-Timestamp).',
-    },
-    {
-      q: 'What are the pay-as-you-go pricing rates?',
-      a: 'AI voice calls are $0.05/minute (including STT, LLM, and TTS), SMS messages are $0.015/segment, and dedicated phone numbers are $2.00/month. There are no minimum commitments or hidden fees.',
-    },
-  ];
-
   return (
-    <section id="pricing" className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <ScrollReveal direction="up" distance={20}>
-        <div className="text-center mb-12">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+    <section id="faq" className="relative py-20 sm:py-28 bg-[#050406] border-t border-white/[0.06] overflow-hidden">
+      {/* Background ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-pink-600/[0.04] rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold mb-3">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>Developer FAQ</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
             Frequently Asked Questions
           </h2>
-          <h3 className="text-3xl font-black text-white tracking-tight">
-            Everything You Need to Know
-          </h3>
+          <p className="text-sm sm:text-base text-neutral-400 mt-3 font-normal">
+            Everything you need to know about Talkie infrastructure and telephony.
+          </p>
         </div>
-      </ScrollReveal>
 
-      <div className="space-y-3">
-        {faqs.map((faq, idx) => {
-          const isOpen = openIndex === idx;
-          return (
-            <div
-              key={idx}
-              className="rounded-2xl bg-zinc-900 border border-zinc-800 overflow-hidden transition shadow-sm"
-            >
-              <button
-                onClick={() => setOpenIndex(isOpen ? null : idx)}
-                className="w-full text-left p-5 flex items-center justify-between gap-4"
+        <div className="space-y-3">
+          {FAQS.map((faq, idx) => {
+            const isOpen = openIndex === idx;
+            return (
+              <div
+                key={idx}
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  isOpen
+                    ? 'bg-[#0d080c]/95 border-pink-500/30 shadow-lg shadow-pink-500/5'
+                    : 'bg-[#09060a]/70 border-white/[0.06] hover:border-white/[0.15]'
+                }`}
               >
-                <span className="text-sm font-bold text-white">{faq.q}</span>
-                <span className="text-zinc-400 text-lg">{isOpen ? '−' : '+'}</span>
-              </button>
-              {isOpen && (
-                <div className="px-5 pb-5 text-xs text-zinc-400 leading-relaxed border-t border-zinc-850 pt-3">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? null : idx)}
+                  className="w-full text-left p-5 flex items-center justify-between gap-4 cursor-pointer"
+                >
+                  <span className={`text-sm sm:text-base font-bold transition-colors ${isOpen ? 'text-pink-300' : 'text-white'}`}>
+                    {faq.q}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-neutral-400 shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-pink-400' : ''
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-neutral-300 leading-relaxed border-t border-white/[0.05] pt-3 font-normal font-sans">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

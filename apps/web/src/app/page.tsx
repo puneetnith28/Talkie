@@ -6,7 +6,6 @@ import { MarketingHowItWorks } from '@/components/marketing/how-it-works';
 import { NumberSearchDemo } from '@/components/marketing/number-search-demo';
 import { MessagingDemo } from '@/components/marketing/messaging-demo';
 import { TranscriptionDemo } from '@/components/marketing/transcription-demo';
-import { CodeShowcase } from '@/components/marketing/code-showcase';
 import { MarketingUseCases } from '@/components/marketing/use-cases';
 import { MarketingFAQ } from '@/components/marketing/faq-accordion';
 import { DotBackground, GlowBackground } from '@talkie/ui';
@@ -55,9 +54,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* MCP, SDK & REST Code Showcase */}
-      <CodeShowcase />
 
       {/* Enterprise Use Cases */}
       <MarketingUseCases />
