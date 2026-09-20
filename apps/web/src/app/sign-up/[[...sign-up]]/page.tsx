@@ -23,6 +23,8 @@ export default function SignUpPage() {
   const handleDemoSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    // Set authentication session cookie
+    document.cookie = `talkie_session=demo_user_${Date.now()}; path=/; max-age=86400; SameSite=Lax`;
     setTimeout(() => {
       router.push('/dashboard');
     }, 400);

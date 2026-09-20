@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Bot,
@@ -16,6 +16,7 @@ import {
   BookOpen,
   Settings,
   X,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@talkie/ui';
 
@@ -48,6 +49,15 @@ interface SidebarProps {
 
 export function Sidebar({ onClose, className, showCloseButton = false, isDemoMode = true }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    // Clear session cookie
+    document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    if (onClose) onClose();
+    router.push('/sign-in');
+  };
 
   return (
     <aside
@@ -131,7 +141,7 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
       </nav>
 
       {/* Workspace & Mode Footer */}
-      <div className="p-4 border-t border-white/[0.08] bg-white/[0.01] flex-shrink-0">
+      <div className="p-4 border-t border-white/[0.08] bg-white/[0.01] flex-shrink-0 space-y-3">
         <div className="flex items-center justify-between text-xs text-neutral-400">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -148,6 +158,15 @@ export function Sidebar({ onClose, className, showCloseButton = false, isDemoMod
             {isDemoMode ? 'Demo Mode' : 'Clerk Active'}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-neutral-400 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/10 transition"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out</span>
+        </button>
       </div>
     </aside>
   );

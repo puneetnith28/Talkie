@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SignIn } from '@clerk/nextjs';
 import { Button, Input, Card } from '@talkie/ui';
 import { Bot, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
@@ -12,8 +12,10 @@ const hasClerkKeys = Boolean(
   !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('your_clerk')
 );
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect_url') || '/dashboard';
   const [email, setEmail] = useState('demo@talkie.ai');
   const [password, setPassword] = useState('password123');
   const [loading, setLoading] = useState(false);
@@ -21,8 +23,10 @@ export default function SignInPage() {
   const handleDemoSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    // Set authentication session cookie
+    document.cookie = `talkie_session=demo_user_${Date.now()}; path=/; max-age=86400; SameSite=Lax`;
     setTimeout(() => {
-      router.push('/dashboard');
+      router.push(redirectUrl);
     }, 400);
   };
 
@@ -118,5 +122,13 @@ export default function SignInPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#08090b]" />}>
+      <SignInForm />
+    </Suspense>
   );
 }

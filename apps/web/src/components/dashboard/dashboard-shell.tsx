@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { DemoModeAlert } from './demo-mode-alert';
 import { Button } from '@talkie/ui';
-import { Terminal, Menu } from 'lucide-react';
+import { Terminal, Menu, LogOut } from 'lucide-react';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -30,6 +30,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     isDemoMode: true,
   });
   const pathname = usePathname();
+  const router = useRouter();
 
   // Fetch active workspace and session context
   useEffect(() => {
@@ -165,6 +166,19 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 {session.userInitials}
               </div>
             </Link>
+
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie = 'talkie_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+                document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+                router.push('/sign-in');
+              }}
+              title="Sign Out"
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
 

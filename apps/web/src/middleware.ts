@@ -31,6 +31,20 @@ function fallbackMiddleware(request: NextRequest) {
     });
   }
 
+  // Enforce authentication on protected dashboard & settings routes
+  if (isProtectedRoute(request)) {
+    const sessionCookie =
+      request.cookies.get('talkie_session')?.value ||
+      request.cookies.get('__session')?.value ||
+      request.cookies.get('talkie_token')?.value;
+
+    if (!sessionCookie) {
+      const signInUrl = new URL('/sign-in', request.url);
+      signInUrl.searchParams.set('redirect_url', request.nextUrl.pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  }
+
   const response = NextResponse.next();
   response.headers.set('X-Request-Id', requestId);
 
