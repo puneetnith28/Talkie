@@ -245,7 +245,7 @@ export function HeroCallDemo() {
       </div>
 
       {/* Control bar */}
-      <div className="flex items-center justify-between pt-3 relative z-10">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-3 relative z-10">
         <AudioWaveform
           isPlaying={callState === 'connected'}
           speaker={currentSpeaker}
@@ -255,7 +255,7 @@ export function HeroCallDemo() {
           {callState === 'idle' && (
             <button
               onClick={startCall}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold text-xs transition shadow-lg shadow-blue-500/25 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-semibold text-xs transition shadow-lg shadow-emerald-500/25 cursor-pointer"
             >
               <Phone className="size-3.5" />
               Start Interactive Call
@@ -266,16 +266,16 @@ export function HeroCallDemo() {
             <>
               <button
                 onClick={speakNextTurn}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-zinc-200 font-medium text-xs border border-zinc-700 transition cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-zinc-200 font-medium text-xs border border-zinc-700 transition cursor-pointer"
               >
-                <Mic className="size-3 text-emerald-400" />
+                <Mic className="size-3.5 text-emerald-400" />
                 Speak Turn
               </button>
               <button
                 onClick={endCall}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 active:scale-95 text-white font-semibold text-xs transition cursor-pointer shadow-md shadow-red-500/20"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-500 active:scale-95 text-white font-semibold text-xs transition cursor-pointer shadow-md shadow-red-500/20"
               >
-                <PhoneOff className="size-3" />
+                <PhoneOff className="size-3.5" />
                 End
               </button>
             </>

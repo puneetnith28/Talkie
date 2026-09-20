@@ -60,7 +60,7 @@ export function MessagingDemo() {
   }, []);
 
   return (
-    <div className="p-6 rounded-3xl bg-zinc-900/95 border border-zinc-800/90 shadow-2xl space-y-4 font-sans backdrop-blur-xl relative overflow-hidden">
+    <div className="p-4 sm:p-6 rounded-3xl bg-zinc-900/95 border border-zinc-800/90 shadow-2xl space-y-4 font-sans backdrop-blur-xl relative overflow-hidden">
       {/* Top ambient purple glow */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
 
