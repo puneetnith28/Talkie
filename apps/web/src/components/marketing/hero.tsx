@@ -18,7 +18,7 @@ export function MarketingHero() {
           {/* Left Hero Copy */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             {/* Pill Announcement */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800 shadow-inner">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800 shadow-inner animate-hero-eyebrow">
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
               <span className="text-xs font-semibold text-zinc-300">
                 Announcing Talkie v1.0 • Global AI Telephony Platform
@@ -26,7 +26,7 @@ export function MarketingHero() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] animate-hero-heading">
               Phone numbers for{' '}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
                 AI Voice Agents
@@ -34,12 +34,12 @@ export function MarketingHero() {
             </h1>
 
             {/* Subheading */}
-            <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal animate-hero-copy">
               Instant carrier-grade phone numbers, sub-second conversational latency, real-time live transcripts, and unified omnichannel SMS. Built for modern AI applications, MCP tools, and autonomous agent backends.
             </p>
 
             {/* CTA row */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2 animate-hero-cta">
               <Link href="/dashboard">
                 <Button variant="primary" className="h-12 px-8 text-sm font-bold shadow-xl shadow-blue-500/25">
                   Get Started Free →
@@ -53,7 +53,7 @@ export function MarketingHero() {
             </div>
 
             {/* Quick stats pills */}
-            <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-zinc-500 font-mono">
+            <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-zinc-500 font-mono animate-hero-stats">
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400">⚡</span> &lt;450ms Voice Latency
               </div>
@@ -67,7 +67,7 @@ export function MarketingHero() {
           </div>
 
           {/* Right Hero Demo */}
-          <div className="lg:col-span-5 flex justify-center">
+          <div className="lg:col-span-5 flex justify-center animate-hero-card">
             <HeroCallDemo />
           </div>
         </div>
