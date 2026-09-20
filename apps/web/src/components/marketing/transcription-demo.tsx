@@ -1,128 +1,116 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Radio, Mic, Sparkles } from 'lucide-react';
+import { Mic } from 'lucide-react';
 
-interface TranscriptItem {
+interface Turn {
   id: string;
   speaker: 'Caller' | 'AI Agent';
-  time: string;
   text: string;
+  time: string;
   latencyMs?: number;
 }
 
-const FULL_TURNS: TranscriptItem[] = [
+const TRANSCRIPT_CONVERSATION: Turn[] = [
   {
     id: '1',
     speaker: 'Caller',
     time: '00:02',
-    text: "Can you confirm the refund policy for enterprise annual subscriptions?",
+    text: 'Can you confirm the refund policy for enterprise annual subscriptions?',
   },
   {
     id: '2',
     speaker: 'AI Agent',
-    time: '00:05',
-    text: "Yes. Enterprise plans include a 30-day money-back guarantee with zero cancellation fees.",
-    latencyMs: 290,
+    time: '00:04',
+    text: 'Enterprise plans include a 30-day full refund guarantee with zero cancellation fees.',
+    latencyMs: 240,
   },
   {
     id: '3',
     speaker: 'Caller',
-    time: '00:09',
-    text: "Fantastic. Can you email me the itemized invoice?",
+    time: '00:08',
+    text: 'Can you dispatch the itemized invoice to my primary billing email?',
   },
   {
     id: '4',
     speaker: 'AI Agent',
-    time: '00:11',
-    text: "Sent to your primary account email just now. Anything else I can assist with?",
-    latencyMs: 315,
+    time: '00:10',
+    text: 'Itemized invoice PDF has been dispatched. Can I assist with anything else today?',
+    latencyMs: 215,
   },
 ];
 
 export function TranscriptionDemo() {
-  const [visibleCount, setVisibleCount] = useState(1);
-  const [isTyping, setIsTyping] = useState(false);
+  const [turnIndex, setTurnIndex] = useState(0);
 
-  // Progressive streaming loop
   useEffect(() => {
     const interval = setInterval(() => {
-      setVisibleCount((prev) => {
-        if (prev >= FULL_TURNS.length) {
-          return 1; // loop back seamlessly
-        }
-        return prev + 1;
-      });
-    }, 3200);
-
+      setTurnIndex((prev) => (prev + 1) % 3); // cycles pairs cleanly
+    }, 3800);
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    setIsTyping(true);
-    const t = setTimeout(() => setIsTyping(false), 800);
-    return () => clearTimeout(t);
-  }, [visibleCount]);
+  // Display sliding 2-message window for zero-scroll minimalism
+  const currentTurns = [
+    TRANSCRIPT_CONVERSATION[turnIndex % TRANSCRIPT_CONVERSATION.length],
+    TRANSCRIPT_CONVERSATION[(turnIndex + 1) % TRANSCRIPT_CONVERSATION.length],
+  ];
 
   return (
-    <div className="p-4 sm:p-6 rounded-3xl bg-zinc-900/95 border border-zinc-800/90 shadow-2xl space-y-4 font-sans backdrop-blur-xl relative overflow-hidden">
-      {/* Top ambient glow */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0d080c]/90 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden flex flex-col justify-between h-full min-h-[280px]">
+      {/* Subtle top ambient glow */}
+      <div className="absolute top-0 right-0 w-36 h-36 bg-pink-500/[0.08] rounded-full blur-2xl pointer-events-none" />
 
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold text-xs border border-blue-500/30 shadow-inner">
-            <Mic className="size-4" />
+      <div className="flex items-center justify-between border-b border-white/[0.06] pb-3.5 mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center border border-pink-500/30">
+            <Mic className="w-4 h-4" />
           </div>
           <div>
-            <div className="text-xs font-bold text-white tracking-tight">Live Real-Time Transcription</div>
-            <div className="text-[10px] text-zinc-400 font-medium">Deepgram Nova-2 • 98.4% Accuracy</div>
+            <div className="text-xs font-bold text-white tracking-tight">Live Voice Transcription</div>
+            <div className="text-[10px] text-neutral-400 font-mono">Deepgram Nova-2 • &lt;240ms latency</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[10px] font-mono text-emerald-300 font-bold uppercase tracking-wider">
+        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-500/10 border border-pink-500/25">
+          <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
+          <span className="text-[9px] font-mono text-pink-300 font-bold uppercase tracking-wider">
             Streaming
           </span>
         </div>
       </div>
 
-      {/* Transcript Items */}
-      <div className="space-y-2.5 min-h-[235px] max-h-[235px] overflow-y-auto pr-1">
-        {FULL_TURNS.slice(0, visibleCount).map((t, idx) => {
-          const isLatest = idx === visibleCount - 1;
+      {/* Dynamic Animated Turns with zero scrollbars */}
+      <div className="space-y-2.5 overflow-hidden flex-1 flex flex-col justify-center">
+        {currentTurns.map((t, idx) => {
           const isAgent = t.speaker === 'AI Agent';
           return (
             <div
-              key={t.id}
-              className={`p-3 rounded-xl border transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 ${
+              key={`${t.id}-${idx}-${turnIndex}`}
+              className={`p-3.5 rounded-xl border transition-all duration-500 animate-in fade-in slide-in-from-bottom-2 ${
                 isAgent
-                  ? 'bg-blue-600/10 border-blue-500/30 text-blue-100'
-                  : 'bg-zinc-950/80 border-zinc-800/80 text-zinc-200'
+                  ? 'bg-pink-950/20 border-pink-500/30 text-white'
+                  : 'bg-neutral-900/60 border-white/[0.06] text-neutral-200'
               }`}
             >
-              <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1 font-semibold">
-                <span className={isAgent ? 'text-blue-400 font-bold' : 'text-zinc-300 font-bold'}>
+              <div className="flex items-center justify-between text-[10px] mb-1 font-semibold">
+                <span className={isAgent ? 'text-pink-400 font-bold' : 'text-neutral-300'}>
                   {t.speaker}
                 </span>
 
                 <div className="flex items-center gap-2">
                   {t.latencyMs && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-mono">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-300 font-mono">
                       ⚡ {t.latencyMs}ms
                     </span>
                   )}
-                  <span className="font-mono text-zinc-500 text-[10px]">{t.time}</span>
+                  <span className="font-mono text-neutral-500 text-[10px]">{t.time}</span>
                 </div>
               </div>
 
-              <p className="text-zinc-200 text-xs leading-relaxed font-normal">
+              <p className="text-xs text-neutral-300 leading-relaxed font-sans font-normal">
                 {t.text}
-                {isLatest && isTyping && (
-                  <span className="inline-block w-1.5 h-3.5 ml-1 bg-blue-400 animate-pulse align-middle" />
-                )}
               </p>
             </div>
           );

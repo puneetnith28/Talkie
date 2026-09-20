@@ -40,13 +40,13 @@ export default function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">
+            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-pink-400 mb-2">
               Multimodal Intelligence
             </h2>
             <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Conversational Voice & Omnichannel SMS
+              Conversational Voice &amp; Omnichannel SMS
             </h3>
-            <p className="text-sm text-zinc-400 mt-2 font-normal">
+            <p className="text-sm text-neutral-400 mt-2 font-normal">
               Seamlessly pivot between live voice calls and automated two-way text messages within unified contact threads.
             </p>
           </div>
